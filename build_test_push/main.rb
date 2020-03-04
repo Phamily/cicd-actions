@@ -7,14 +7,25 @@ NAME = ENV['INPUT_NAME']
 DEBUG_MODE = ENV['INPUT_DEBUG_MODE'] == "true"
 TESTS = (ENV['INPUT_TESTS'] || []).split(",")
 TEST_ENV_FILE = ENV['TEST_ENV_FILE']
+GITHUB_REF = ENV['GITHUB_REF']
 
 BASENAME = NAME.split("/")[-1]
 
 def run
+  check_inputs
   login unless DEBUG_MODE
   build
   test
   push unless DEBUG_MODE
+end
+
+def check_inputs
+  %w(NAME GITHUB_REF).each do |name|
+    var = Kernel.const_get(name)
+    if var.nil? || var.strip == ""
+      raise "Variable #{name} is not properly set."
+    end
+  end
 end
 
 def login
@@ -52,7 +63,7 @@ end
 
 def branch
   if GITHUB_REF.include?("refs/heads")
-    return GITHUB_REF.split("/")[-1]
+    return GITHUB_REF.gsub("refs/heads/", "").gsub("/", "-")
   else
     return nil
   end
