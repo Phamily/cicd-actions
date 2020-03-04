@@ -55,7 +55,7 @@ def push
     return
   end
   tag = branch
-  full_remote_image = "#{REGISTRY}/#{NAME}:#{tag}"
+  full_remote_image = "#{REGISTRY.gsub("https://", "")}/#{NAME}:#{tag}"
   sh "docker tag #{BASENAME}:latest #{full_remote_image}"
   sh "docker push #{full_remote_image}"
 end
