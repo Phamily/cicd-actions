@@ -26,6 +26,7 @@ def check_inputs
       raise "Variable #{name} is not properly set."
     end
   end
+  puts "Detected branch: #{sanitized_branch}"
 end
 
 def login
@@ -48,7 +49,7 @@ def test
 end
 
 def push
-  branch = branch
+  branch = sanitized_branch
   if branch.nil?
     puts "Only pushing images for branches (ref=#{GITHUB_REF})."
     return
@@ -61,7 +62,7 @@ end
 
 # helper methods
 
-def branch
+def sanitized_branch
   if GITHUB_REF.include?("refs/heads")
     return GITHUB_REF.gsub("refs/heads/", "").gsub("/", "-")
   else
