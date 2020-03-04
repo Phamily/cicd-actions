@@ -50,7 +50,7 @@ end
 def push
   branch = branch
   if branch.nil?
-    puts "Only pushing images for branches."
+    puts "Only pushing images for branches (ref=#{GITHUB_REF})."
     return
   end
   tag = branch
