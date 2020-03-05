@@ -1,5 +1,6 @@
 #! /usr/bin/env ruby
 
+TASKS = ENV['INPUT_TASKS']
 USERNAME = ENV['INPUT_USERNAME']
 PASSWORD = ENV['INPUT_PASSWORD']
 REGISTRY = ENV['INPUT_REGISTRY']
@@ -8,15 +9,15 @@ DEBUG_MODE = ENV['INPUT_DEBUG_MODE'] == "true"
 TESTS = (ENV['INPUT_TESTS'] || []).split(",")
 TEST_ENV_FILE = ENV['TEST_ENV_FILE']
 GITHUB_REF = ENV['GITHUB_REF']
+BUILD_ARTIFACT = ENV['INPUT_BUILD_ARTIFACT'] == "true"
 
 BASENAME = NAME.split("/")[-1]
 
 def run
   check_inputs
-  login unless DEBUG_MODE
-  build
-  test
-  push unless DEBUG_MODE
+  TASKS.each do |task|
+    send(task)
+  end
 end
 
 def check_inputs
@@ -34,7 +35,12 @@ def login
 end
 
 def build
-  sh "docker build . -t #{BASENAME}"
+  if BUILD_ARTIFACT
+    sh "mkdir artifacts"
+    sh "docker build . --output=type=tar,dest=./build/image.tar"
+  else
+    sh "docker build . -t #{BASENAME}"
+  end
 end
 
 def test

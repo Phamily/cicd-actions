@@ -5,6 +5,9 @@ branding:
   color: 'blue'
 description: "Build, test, and push repository"
 inputs:
+  tasks:
+    description: "Comma separated list of tasks to run"
+    required: true
   name:
     description: "The name of the image you would like to push"
     required: true
@@ -19,6 +22,9 @@ inputs:
     required: true
   tests:
     description: "Tests that the image should run before pushing, comma separated"
+    required: false
+  build_artifact:
+    description: "Only build the image and store as an artifact"
     required: false
   test_env_file:
     description: "Environment file for running tests"
