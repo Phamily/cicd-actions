@@ -5,6 +5,6 @@ RUN apk update && apk upgrade
 
 RUN apk add ruby
 
-ADD main.rb /main.rb
+ADD cicd /cicd
 
-ENTRYPOINT ["/main.rb"]
+ENTRYPOINT ["/cicd/main.rb"]

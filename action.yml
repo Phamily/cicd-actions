@@ -1,4 +1,4 @@
-name: "CICD Actions - Build, Test, Push"
+name: "CICD Actions"
 author: "Alan Graham"
 branding:
   icon: 'anchor'
@@ -8,18 +8,21 @@ inputs:
   tasks:
     description: "Comma separated list of tasks to run"
     required: true
-  name:
+  image_name:
     description: "The name of the image you would like to push"
-    required: true
-  username:
-    description: "The login username for the registry"
-    required: true
-  password:
-    description: "The login password for the registry"
-    required: true
+    required: false
+  image_tar:
+    description: "The path to the tar of the built image"
+    required: false
   registry:
     description: "The registry URL"
-    required: true
+    required: false
+  registry_username:
+    description: "The login username for the registry"
+    required: false
+  registry_password:
+    description: "The login password for the registry"
+    required: false
   tests:
     description: "Tests that the image should run before pushing, comma separated"
     required: false
