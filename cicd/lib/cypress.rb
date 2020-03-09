@@ -6,8 +6,10 @@ class CypressModule
   end
 
   def run
+    # setup network
+    sh "docker network create cicd"
+
     # prepare test database
-    #sh "docker network create cicd"
     puts "Starting postgres..."
     sh "docker run --name=cicd-postgres --network=cicd --rm -e POSTGRES_PASSWORD=postgres -d postgres:9.6"
     puts "Postgres started"
