@@ -3,6 +3,7 @@ FROM cypress/base:10
 RUN npm install --save-dev cypress
 
 ADD ./cypress cypress
+ADD .git .git
 ADD .github/cypress.env.json cypress.env.json
 ADD .github/cypress.json cypress.json
 
