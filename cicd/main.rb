@@ -21,7 +21,7 @@ end
 def prepare
   set :tasks, ENV['INPUT_TASKS'].split(",")
   set :image_name, ENV['INPUT_IMAGE_NAME']
-  set :test_env_file, ENV['INPUT_TEST_ENV_FILE'] || ".github/test.env"
+  set :test_env_file, ENV['INPUT_TEST_ENV_FILE']
   set :github_ref, ENV['GITHUB_REF']
   MODULES.each do |key, mod|
     mod.prepare
