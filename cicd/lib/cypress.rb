@@ -30,7 +30,7 @@ class CypressModule
     # build and run cypress container
     flag_record = fetch(:cypress_record_enabled) ? "--record" : ""
     sh "docker build . -f /cicd/Dockerfile.cypress -t cypress-runner"
-    sh "docker run --network=cicd --rm -e CYPRESS_RECORD_KEY=#{fetch(:cypress_record_key)} cypress-runner #{flag_record}"
+    sh "docker run --network=cicd --rm -e CYPRESS_RECORD_KEY=#{fetch(:cypress_record_key)} cypress-runner run #{flag_record}"
   end
 
   # helpers

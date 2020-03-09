@@ -6,6 +6,6 @@ ADD ./cypress cypress
 ADD .github/cypress.env.json cypress.env.json
 ADD .github/cypress.json cypress.json
 
-ENTRYPOINT /node_modules/.bin/cypress run
+ENTRYPOINT ["/node_modules/.bin/cypress"]
 
 
