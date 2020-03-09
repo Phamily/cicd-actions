@@ -5,7 +5,7 @@ require_relative 'lib/cypress'
 
 MODULES = {
   docker: DockerModule.new,
-  #cypress: CypressModule.new,
+  cypress: CypressModule.new,
 }
 OPTIONS = {}
 
@@ -20,6 +20,8 @@ end
 
 def prepare
   set :tasks, ENV['INPUT_TASKS'].split(",")
+  set :image_name, ENV['INPUT_IMAGE_NAME']
+  set :test_env_file, ENV['INPUT_TEST_ENV_FILE']
   set :github_ref, ENV['GITHUB_REF']
   MODULES.each do |key, mod|
     mod.prepare

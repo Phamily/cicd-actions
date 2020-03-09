@@ -32,6 +32,12 @@ inputs:
   test_env_file:
     description: "Environment file for running tests"
     required: false
+  cypress_record_key:
+    description: "Record key for cypress"
+    required: false
+  cypress_record_enabled:
+    description: "Enable cypress recording"
+    required: false
 runs:
   using: 'docker'
   image: 'Dockerfile'
