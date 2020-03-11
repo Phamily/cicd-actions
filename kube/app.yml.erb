@@ -1,0 +1,52 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: rails-app
+spec:
+  template:
+    metadata:
+      annotations:
+        alpha.image.policy.openshift.io/resolve-names: '*'
+      labels:
+        name: rails-app
+    spec:
+      volumes:
+      - name: shared
+        emptyDir: {}
+      containers:
+      - name: app
+        image: <%= var(:app_image_url) %>
+        imagePullPolicy: Always
+        command: ["foreman"]
+        args: ["start"]
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: env-settings
+              key: DATABASE_URL
+        <% var(:env).each do |k, v| %>
+        - name: <%= k %>
+          value: <%= v.to_s.inspect %>
+        <% end %>
+        volumeMounts:
+        - name: shared
+          mountPath: /shared_pod
+  replicas: 1
+  selector:
+    matchLabels:
+      name: rails-app
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: rails-app
+spec:
+  type: LoadBalancer
+  selector:
+    name: rails-app
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 3000
+

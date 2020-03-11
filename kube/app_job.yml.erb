@@ -1,0 +1,23 @@
+kind: Job
+apiVersion: batch/v1
+metadata:
+  name: <%= var(:name) %>
+spec:
+  template:
+    metadata:
+      name: <%= var(:name) %>
+      annotations:
+        alpha.image.policy.openshift.io/resolve-names: '*'
+    spec:
+      containers:
+      - name: <%= var(:name) %>
+        image: <%= var(:app_image_url) %>
+        command: <%= var(:command) %>
+        args: <%= var(:args) %>
+        env:
+        <% var(:env).each do |k, v| %>
+        - name: <%= k %>
+          value: <%= v.to_s.inspect %>
+        <% end %>
+      restartPolicy: Never
+  backoffLimit: 0

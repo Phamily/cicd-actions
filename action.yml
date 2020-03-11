@@ -11,10 +11,13 @@ inputs:
   image_name:
     description: "The name of the image you would like to push"
     required: false
+  image_namespace:
+    description: "The namespace of the image you would like to push"
+    required: false
   image_tar:
     description: "The path to the tar of the built image"
     required: false
-  registry:
+  registry_url:
     description: "The registry URL"
     required: false
   registry_username:
@@ -22,6 +25,15 @@ inputs:
     required: false
   registry_password:
     description: "The login password for the registry"
+    required: false
+  aws_region:
+    description: "AWS Region"
+    required: false
+  aws_access_key:
+    description: "AWS Access Key"
+    required: false
+  aws_secret_access_key:
+    description: "AWS Secret Access Key"
     required: false
   tests:
     description: "Tests that the image should run before pushing, comma separated"
@@ -37,6 +49,9 @@ inputs:
     required: false
   cypress_record_enabled:
     description: "Enable cypress recording"
+    required: false
+  kube_cluster_name:
+    description: "Kube cluster name"
     required: false
 runs:
   using: 'docker'

@@ -1,6 +1,7 @@
 class DockerModule
 
   def prepare
+    set :registry_url, ENV['INPUT_REGISTRY_URL']
     set :registry_username, ENV['INPUT_REGISTRY_USERNAME']
     set :image_tar, ENV['INPUT_IMAGE_TAR']
     set :image_namespace, ENV['INPUT_IMAGE_NAMESPACE']
@@ -8,8 +9,22 @@ class DockerModule
     set :build_artifact, ENV['INPUT_BUILD_ARTIFACT'] == "true"
   end
 
+  def get_ecr_token
+    return if present?(fetch(:registry_password))
+    resp = `aws ecr get-authorization-token`
+    json = JSON.parse(resp)
+    auth_data = json["authorizationData"].first
+    token = Base64.decode64(auth_data["authorizationToken"])
+    ts = token.split(":")
+    ep = auth_data["proxyEndpoint"]
+    set :registry_url, ep
+    set :registry_username, ts[0]
+    set :registry_password, ts[1]
+  end
+
   def login
-    sh "echo #{fetch(:registry_password)} | docker login -u #{fetch(:registry_username)} --password-stdin #{fetch(:registry)}"
+    get_ecr_token
+    sh "echo #{fetch(:registry_password)} | docker login -u #{fetch(:registry_username)} --password-stdin #{fetch(:registry_url)}", text: "Login command"
   end
 
   def build
@@ -39,12 +54,12 @@ class DockerModule
   def push
     branch = sanitized_branch
     if branch.nil?
-      puts "Only pushing images for branches (ref=#{GITHUB_REF})."
+      puts "Only pushing images for branches (ref=#{fetch(:github_ref)})."
       return
     end
     tag = branch
-    full_remote_image = "#{REGISTRY.gsub("https://", "")}/#{NAME}:#{tag}"
-    sh "docker tag #{BASENAME}:latest #{full_remote_image}"
+    full_remote_image = "#{fetch(:registry_url).gsub("https://", "")}/#{fetch(:image_namespace)}/#{fetch(:image_name)}:#{tag}"
+    sh "docker tag #{fetch(:image_name)}:latest #{full_remote_image}"
     sh "docker push #{full_remote_image}"
   end
 
