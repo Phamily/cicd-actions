@@ -53,11 +53,11 @@ class CypressModule
 
   def cypress_config
     cc = fetch(:cicd_config)
-    return cc[:defaults][:cypress] || {}
+    return cc["defaults"]["cypress"] || {}
   end
 
   def specs_to_run
-    cypress_config[:specs] || []
+    cypress_config["specs"] || []
   end
 
 end
