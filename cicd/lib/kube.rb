@@ -88,6 +88,7 @@ class KubeModule
     loop do
       js = JSON.parse(`kubectl --namespace #{fetch(:kube_namespace)} get job/#{name} -o json`)
       if js['status']['failed'].to_i > 0
+        kubecmd "logs job/#{name}"
         raise "Job did not successfully finish."
       end
       if js['status']['succeeded'].to_i >= js['spec']['completions'].to_i
