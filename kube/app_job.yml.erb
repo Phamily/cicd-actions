@@ -12,6 +12,7 @@ spec:
       containers:
       - name: <%= var(:name) %>
         image: <%= var(:app_image_url) %>
+        imagePullPolicy: Always
         command: <%= var(:command) %>
         args: <%= var(:args) %>
         env:
