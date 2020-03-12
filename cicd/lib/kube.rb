@@ -14,9 +14,10 @@ class KubeModule
 
   def apply
     # iterate environments to apply
+    puts "Applying to requested environments."
     cicd = fetch(:cicd_config)
     cicd["environments"].each do |e|
-      if e["branch"] == branch
+      if !branch.nil? && e["branch"] == branch
         apply_environment(e)
       end
     end
@@ -33,12 +34,17 @@ class KubeModule
   end
 
   def apply_environment(e)
+    puts "Applying to the #{e["name"]} environment."
     build_vars(e)
     # iterate needed manifests
+    svc_comps = []
     init_comps = []
     depl_comps = []
     cicdc = fetch(:cicd_config)
-    e["kube"]["components"].each do |comp|
+    svcs = (e["kube"]["services"] ||= [])
+    jobs = (e["kube"]["jobs"] ||= [])
+    apps = (e["kube"]["apps"] ||= [])
+    (svcs | jobs | apps).each do |comp|
       next if comp["skip"] == true
       name = comp["name"]
       cm = comp["manifest"] || comp["name"]
@@ -48,26 +54,60 @@ class KubeModule
       write_template_file("/kube/#{cm}.yml.erb", manifest, context: ctx)
       puts File.read(manifest)
       comp["build_manifest"] = manifest
-      if comp["init"]
-        init_comps << comp
-      else
-        depl_comps << comp
-      end
     end
 
-    puts "Running init components."
-    init_comps.each do |c|
+    puts "Updating service components."
+    svcs.each do |c|
+      next if c["skip"] == true
+      puts "Updating service: #{c["name"]}"
+      kubecmd "apply -f #{c["build_manifest"]}"
+      # wait for finished
+      wait_for_deployment(c["name"])
+    end
+
+    puts "Running job components."
+    jobs.each do |c|
+      next if c["skip"] == true
       puts "Running init: #{c["name"]}"
       # delete previous job if present
       kubecmd "delete job #{c["name"]} --ignore-not-found"
       # run job
       kubecmd "apply -f #{c["build_manifest"]}"
       # wait for finished
-      kubecmd "wait --for=condition=complete job/#{c["name"]}"
+      wait_for_job(c["name"])
+      # get logs
+      kubecmd "logs job/#{c["name"]}"
     end
 
-    puts "Running deployment components."
-    kubecmd "apply #{depl_comps.map{|c| "-f #{c["build_manifest"]}"}.join(" ")}"
+    puts "Updating deployment components."
+    kubecmd "apply #{apps.select{|c| c["skip"] != true}.map{|c| "-f #{c["build_manifest"]}"}.join(" ")}"
+  end
+
+  def wait_for_job(name)
+    puts "Waiting for job #{name}."
+    loop do
+      js = JSON.parse(`kubectl --namespace #{fetch(:kube_namespace)} get job/#{name} -o json`)
+      if js['status']['failed'].to_i > 0
+        raise "Job did not successfully finish."
+      end
+      if js['status']['succeeded'].to_i >= js['spec']['completions'].to_i
+        puts "Job completed successfully."
+        break
+      end
+      sleep 10
+    end
+  end
+
+  def wait_for_deployment(name)
+    puts "Waiting for deployment #{name}."
+    loop do
+      js = JSON.parse(`kubectl --namespace #{fetch(:kube_namespace)} get deployment/#{name} -o json`)
+      if js['status']['readyReplicas'].to_i >= js['status']['replicas'].to_i
+        puts "Service is ready."
+        break
+      end
+      sleep 10
+    end
   end
 
   def kubecmd(cmd)

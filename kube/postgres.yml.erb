@@ -1,0 +1,41 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: postgres
+spec:
+  template:
+    metadata:
+      labels:
+        name: postgres
+    spec:
+      volumes:
+      - name: pgdata
+        awsElasticBlockStore:
+          volumeID: <%= var(:volume_id) %>
+          fsType: ext4
+      containers:
+      - name: postgres
+        image: postgres:9.6
+        env:
+        - name: POSTGRES_PASSWORD
+          value: VNNY28gixgcxRThqzuXA
+        volumeMounts:
+        - name: pgdata
+          mountPath: /var/lib/postgresql
+  replicas: 1
+  selector:
+    matchLabels:
+      name: postgres
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: postgres
+spec:
+  selector:
+    name: postgres
+  ports:
+  - port: 5432
+    protocol: TCP
+    targetPort: 5432
+
