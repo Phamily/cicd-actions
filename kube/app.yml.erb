@@ -21,7 +21,7 @@ spec:
         args: ["start"]
         env:
         - name: KUBE_APPLY_AT
-          value: <%= Time.now.to_i %>
+          value: "<%= Time.now.to_i %>"
         <% var(:env).each do |k, v| %>
         - name: <%= k %>
           value: <%= v.to_s.inspect %>
