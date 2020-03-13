@@ -62,7 +62,7 @@ class KubeModule
       puts "Updating service: #{c["name"]}"
       kubecmd "apply -f #{c["build_manifest"]}"
       # wait for finished
-      wait_for_deployment(c["name"])
+      wait_for_resource("deployment", c["name"])
     end
 
     puts "Running job components."
@@ -74,7 +74,7 @@ class KubeModule
       # run job
       kubecmd "apply -f #{c["build_manifest"]}"
       # wait for finished
-      wait_for_job(c["name"])
+      wait_for_resource("job", c["name"])
       # get logs
       kubecmd "logs job/#{c["name"]}"
     end
@@ -83,31 +83,36 @@ class KubeModule
     kubecmd "apply #{apps.select{|c| c["skip"] != true}.map{|c| "-f #{c["build_manifest"]}"}.join(" ")}"
   end
 
-  def wait_for_job(name)
-    puts "Waiting for job #{name}."
+  def wait_for_resource(type, name, opts={})
+    type = type.to_s
+    timeout = opts[:timeout] || 300
+    timeout_at = Time.now + timeout
+    puts "Waiting for #{type} #{name}."
     loop do
-      js = JSON.parse(`kubectl --namespace #{fetch(:kube_namespace)} get job/#{name} -o json`)
-      if js['status']['failed'].to_i > 0
-        kubecmd "logs job/#{name}"
-        raise "Job did not successfully finish."
+      js = JSON.parse(`kubectl --namespace #{fetch(:kube_namespace)} get #{type}/#{name} -o json`)
+      case type
+      when "job"
+        if js['status']['failed'].to_i > 0
+          kubecmd "logs job/#{name}"
+          raise "Job did not successfully finish."
+        end
+        if js['status']['succeeded'].to_i >= js['spec']['completions'].to_i
+          puts "Job completed successfully."
+          break
+        end
+      when "deployment"
+        if js['status']['readyReplicas'].to_i >= js['status']['replicas'].to_i
+          puts "Deployment is ready."
+          break
+        end
       end
-      if js['status']['succeeded'].to_i >= js['spec']['completions'].to_i
-        puts "Job completed successfully."
-        break
-      end
-      sleep 10
-    end
-  end
 
-  def wait_for_deployment(name)
-    puts "Waiting for deployment #{name}."
-    loop do
-      js = JSON.parse(`kubectl --namespace #{fetch(:kube_namespace)} get deployment/#{name} -o json`)
-      if js['status']['readyReplicas'].to_i >= js['status']['replicas'].to_i
-        puts "Service is ready."
-        break
+      if Time.now > timeout_at
+        kubecmd "logs #{type}/#{name}"
+        raise "Timeout occurred waiting."
+      else
+        sleep 10
       end
-      sleep 10
     end
   end
 
