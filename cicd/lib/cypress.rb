@@ -6,22 +6,7 @@ class CypressModule
   end
 
   def run
-    # setup network
-    sh "docker network create cicd"
-
-    # prepare test database
-    puts "Starting postgres..."
-    sh "docker run --name=cicd-postgres --network=cicd --rm -e POSTGRES_PASSWORD=postgres -d postgres:9.6"
-    puts "Postgres started"
-
-    puts "Starting redis..."
-    sh "docker run --name=cicd-redis --network=cicd --rm -d redis"
-    puts "Redis started"
-
-    puts "Preparing test database..."
-    run_in_image "rake db:create"
-    run_in_image "rake db:reset"
-    puts "Test database prepared."
+    start_dependencies
 
     # start docker and bind to port 3000
     puts "Starting server in background."
@@ -40,16 +25,6 @@ class CypressModule
   private
 
   # helpers
-
-  def run_in_image(cmd, flags="")
-    env_file_opt = ""
-    if fetch(:test_env_file) != nil
-      env_file_opt= "--env-file=#{fetch(:test_env_file)}"
-    else
-      raise "Test environment variable must be specified"
-    end
-    sh "docker run --network=cicd --rm #{flags} #{env_file_opt} #{fetch(:image_name)} #{cmd}"
-  end
 
   def cypress_config
     cc = fetch(:cicd_config)

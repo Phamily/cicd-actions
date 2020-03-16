@@ -3,6 +3,7 @@
 require_relative 'lib/docker'
 require_relative 'lib/cypress'
 require_relative 'lib/kube'
+require_relative 'lib/rspec'
 require 'erb'
 require 'yaml'
 require 'base64'
@@ -12,6 +13,7 @@ MODULES = {
   docker: DockerModule.new,
   cypress: CypressModule.new,
   kube: KubeModule.new,
+  rspec: RspecModule.new,
 }
 OPTIONS = {}
 
@@ -28,7 +30,7 @@ def prepare
   set :tasks, ENV['INPUT_TASKS'].split(",")
   set :image_name, ENV['INPUT_IMAGE_NAME']
   set :image_namespace, ENV['INPUT_IMAGE_NAMESPACE']
-  set :test_env_file, ENV['INPUT_TEST_ENV_FILE']
+  set :image_env_file, ENV['INPUT_IMAGE_ENV_FILE']
   set :aws_access_key, ENV['INPUT_AWS_ACCESS_KEY']
   set :aws_secret_access_key, ENV['INPUT_AWS_SECRET_ACCESS_KEY']
   set :aws_region, ENV['INPUT_AWS_REGION']
@@ -53,6 +55,25 @@ def prepare
   puts "Detected branch: #{branch}"
 end
 
+def start_dependencies
+  # setup network
+  sh "docker network create cicd"
+
+  # prepare test database
+  puts "Starting postgres..."
+  sh "docker run --name=cicd-postgres --network=cicd --rm -e POSTGRES_PASSWORD=postgres -d postgres:9.6"
+  puts "Postgres started"
+
+  puts "Starting redis..."
+  sh "docker run --name=cicd-redis --network=cicd --rm -d redis"
+  puts "Redis started"
+
+  puts "Preparing database..."
+  run_in_image "rake db:create"
+  run_in_image "rake db:reset"
+  puts "Test database prepared."
+end
+
 # helper methods
 
 def branch
@@ -68,6 +89,16 @@ def sanitized_branch
   b = branch
   return nil if b.nil?
   return b.gsub("/", "-")
+end
+
+def run_in_image(cmd, flags="")
+  env_file_opt = ""
+  if fetch(:image_env_file) != nil
+    env_file_opt= "--env-file=#{fetch(:image_env_file)}"
+  else
+    raise "Image environment variable file must be specified"
+  end
+  sh "docker run --network=cicd --rm #{flags} #{env_file_opt} #{fetch(:image_name)} #{cmd}"
 end
 
 def sh(cmd, opts={})

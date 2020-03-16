@@ -33,13 +33,30 @@ test_cypress () {
   sudo docker run \
     -e INPUT_TASKS="cypress:run" \
     -e INPUT_IMAGE_NAME=phamily-rails \
-    -e INPUT_TEST_ENV_FILE=.github/test.env \
+    -e INPUT_IMAGE_ENV_FILE=.github/cicd.env \
     -e GITHUB_REF=refs/heads/alan/cicd-test \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -v /home/alan/Projects/web/phamily-rails:/app \
     -w /app \
     --rm \
     cicd-actions:latest
+}
+
+test_rspec () {
+  echo "Testing rspec..."
+  #sudo docker run --env-file=.github/test.env phamily-rails rake db:reset
+  #sudo docker run -d -p 127.0.0.1:3000:3000 #{env_file_opt} #{fetch(:image_name)} rails s -p 3000"
+  sudo docker run \
+    -e INPUT_TASKS="rspec:run" \
+    -e INPUT_IMAGE_NAME=phamily-rails \
+    -e INPUT_IMAGE_ENV_FILE=.github/test.env \
+    -e GITHUB_REF=refs/heads/alan/cicd-test \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    -v /home/alan/Projects/web/phamily-rails:/app \
+    -w /app \
+    --rm \
+    cicd-actions:latest
+
 }
 
 kube_apply () {
@@ -63,4 +80,5 @@ kube_apply () {
 
 #build_and_push
 #test_cypress
-kube_apply
+test_rspec
+#kube_apply

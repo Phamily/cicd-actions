@@ -41,8 +41,8 @@ inputs:
   build_artifact:
     description: "Only build the image and store as an artifact"
     required: false
-  test_env_file:
-    description: "Environment file for running tests"
+  image_env_file:
+    description: "Environment file for running image"
     required: false
   cypress_record_key:
     description: "Record key for cypress"
