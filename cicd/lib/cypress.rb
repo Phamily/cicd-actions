@@ -20,6 +20,8 @@ class CypressModule
     specs = specs_to_run
     flag_specs = specs.empty? ? "" : " --spec \"#{specs.join(",")}\""
     sh "docker run --network=cicd --rm -e CYPRESS_RECORD_KEY=#{fetch(:cypress_record_key)} cypress-runner run #{flag_record}#{flag_specs}"
+    sh "docker rm -f cicd-app"
+    stop_dependencies
   end
 
   private

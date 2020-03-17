@@ -74,6 +74,11 @@ def start_dependencies
   puts "Test database prepared."
 end
 
+def stop_dependencies
+  sh "docker rm -f cicd-postgres cicd-redis"
+  sh "docker network rm cicd"
+end
+
 # helper methods
 
 def branch

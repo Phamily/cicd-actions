@@ -9,6 +9,7 @@ class RspecModule
 
     files_args = specs_to_run.join(" ")
     run_in_image "rspec #{files_args}"
+    stop_dependencies
   end
 
   def rspec_config
