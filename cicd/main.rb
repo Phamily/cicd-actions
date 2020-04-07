@@ -37,6 +37,7 @@ def prepare
 
   # github env vars
   set :github_ref, ENV['GITHUB_REF']
+  set :github_event_name, ENV['GITHUB_EVENT_NAME']
 
   # cicd config
   if File.exists?(".github/cicd.yml")
@@ -52,6 +53,7 @@ def prepare
   MODULES.each do |key, mod|
     mod.prepare
   end
+  puts "Detected Github event: #{fetch(:github_event_name)}"
   puts "Detected branch: #{branch}"
 end
 
@@ -94,6 +96,26 @@ def sanitized_branch
   b = branch
   return nil if b.nil?
   return b.gsub("/", "-")
+end
+
+def can_run?(opts)
+  return true if opts.nil?
+  ref = fetch(:github_ref)
+  ev = fetch(:github_event_name)
+  opts.each do |ev, eopts|
+    case ev
+    when 'push'
+      next if ev != 'push'
+      if eopts["branches"].is_a?(Array)
+        return eopts["branches"].include?(branch)
+      else
+        return true
+      end
+    when 'pull_request'
+      return ev == 'pull_request'
+    end
+  end
+  return false
 end
 
 def run_in_image(cmd, flags="")

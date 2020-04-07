@@ -35,6 +35,7 @@ test_cypress () {
     -e INPUT_IMAGE_NAME=phamily-rails \
     -e INPUT_IMAGE_ENV_FILE=.github/cicd.env \
     -e GITHUB_REF=refs/heads/alan/cicd-test \
+    -e GITHUB_EVENT_NAME=push \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -v /home/alan/Projects/web/phamily-rails:/app \
     -w /app \
@@ -79,6 +80,6 @@ kube_apply () {
 }
 
 #build_and_push
-#test_cypress
-test_rspec
+test_cypress
+#test_rspec
 #kube_apply

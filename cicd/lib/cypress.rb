@@ -6,6 +6,11 @@ class CypressModule
   end
 
   def run
+    # check if can run
+    if !can_run?(cypress_config["run_on"])
+      puts "Cypress is not enabled for this event/branch."
+      return
+    end
     start_dependencies
 
     # start docker and bind to port 3000
