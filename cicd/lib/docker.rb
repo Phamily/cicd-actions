@@ -7,6 +7,7 @@ class DockerModule
     set :image_namespace, ENV['INPUT_IMAGE_NAMESPACE']
     set :image_basename, fetch(:image_name).split("/")[-1]
     set :build_artifact, ENV['INPUT_BUILD_ARTIFACT'] == "true"
+    set :copy_paths, ENV['INPUT_COPY_PATHS']
   end
 
   def get_ecr_token
@@ -63,5 +64,14 @@ class DockerModule
     sh "docker push #{full_remote_image}"
   end
 
+  def copy_paths
+    paths = fetch(:copy_paths)
+    img = fetch(:image_name)
+    paths.split(",").each do |path|
+      puts "Copying path #{path}"
+      pdir = File.dirname(path)
+      sh "docker run -v $PWD:/ws #{img} cp -a #{path} /ws/#{pdir}"
+    end
+  end
 
 end
