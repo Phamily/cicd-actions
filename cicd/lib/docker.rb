@@ -70,7 +70,9 @@ class DockerModule
     paths.split(",").each do |path|
       puts "Copying path #{path}"
       pdir = File.dirname(path)
-      sh "docker run -v $PWD:/ws #{img} cp -a #{path} /ws/#{pdir}"
+      outdir = "/ws/#{pdir}"
+      sh "mkdir -p #{outdir}"
+      sh "docker run -v $PWD:/ws #{img} cp -a #{path} #{outdir}"
     end
   end
 
