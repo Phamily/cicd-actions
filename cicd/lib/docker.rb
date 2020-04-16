@@ -67,13 +67,12 @@ class DockerModule
   def copy_paths
     paths = fetch(:copy_paths)
     img = fetch(:image_name)
-    puts "Preparing to copy docker files into #{ENV['PWD']}"
     paths.split(",").each do |path|
       puts "Copying path #{path}"
       pdir = File.dirname(path)
       outdir = "/ws/#{pdir}"
       sh "mkdir -p #{pdir}"
-      sh "docker run -v #{ENV['PWD']}:/ws #{img} cp -a #{path} #{outdir}"
+      sh "docker run -v /github/workspace:/ws #{img} cp -a #{path} #{outdir}"
     end
   end
 
