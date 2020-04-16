@@ -55,6 +55,7 @@ def prepare
   end
   puts "Detected Github event: #{fetch(:github_event_name)}"
   puts "Detected branch: #{branch}"
+  puts "Current working directory: #{Dir.pwd}"
 end
 
 def start_dependencies
