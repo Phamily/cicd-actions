@@ -73,7 +73,7 @@ class DockerModule
       outdir = "/ws/#{pdir}"
       sh "mkdir -p #{pdir}"
       sh "docker run -v /github/workspace:/ws #{img} cp -a #{path} #{outdir}"
-      sh "chown #{path} -R --reference=/github/workspace"
+      #sh "chown #{path} -R --reference=/github/workspace"
       sh "ls -al #{path}"
     end
   end
