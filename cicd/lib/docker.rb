@@ -72,8 +72,10 @@ class DockerModule
       pdir = File.dirname(path)
       outdir = "/ws/#{pdir}"
       sh "mkdir -p #{pdir}"
-      sh "docker run -v /github/workspace:/ws #{img} cp -r #{path} #{outdir}"
+      sh "docker run -v /github/workspace:/ws #{img} cp -r #{path} #{outdir}/"
       #sh "chown #{path} -R --reference=/github/workspace"
+      sh "ls -al /github/workspace"
+      sh "ls -al #{pdir}"
       sh "ls -al #{path}"
     end
   end
