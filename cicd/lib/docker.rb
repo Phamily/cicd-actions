@@ -68,13 +68,14 @@ class DockerModule
     paths = fetch(:copy_paths)
     img = fetch(:image_name)
     cid = `docker create #{img}`.strip
+    stat = File.stat("/github/workspace")
     paths.split(",").each do |path|
       puts "Copying path #{path}"
       pdir = File.dirname(path)
       sh "mkdir -p #{pdir}"
       sh "docker cp #{cid}:/app/#{path}/. #{path}"
       #sh "docker cp -v /github/workspace:/ws #{img} cp -r #{path} #{outdir}/"
-      #sh "chown #{path} -R --reference=/github/workspace"
+      sh "chown -R #{stat.uid}:#{stat.gid} #{path}"
       sh "ls -al /github/workspace"
       sh "ls -al #{pdir}"
       sh "ls -al #{path}"
