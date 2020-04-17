@@ -67,7 +67,7 @@ class DockerModule
   def copy_paths
     paths = fetch(:copy_paths)
     img = fetch(:image_name)
-    cid = `docker create #{img}`
+    cid = `docker create #{img}`.strip
     paths.split(",").each do |path|
       puts "Copying path #{path}"
       pdir = File.dirname(path)
