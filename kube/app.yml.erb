@@ -22,6 +22,8 @@ spec:
         env:
         - name: KUBE_APPLY_AT
           value: "<%= Time.now.to_i %>"
+        - name: PORT
+          value: 3000
         <% var(:env).each do |k, v| %>
         - name: <%= k %>
           value: <%= v.to_s.inspect %>
