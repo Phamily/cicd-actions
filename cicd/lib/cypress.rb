@@ -7,7 +7,7 @@ class CypressModule
 
   def run
     # check if can run
-    if !can_run?(cypress_config["run_on"])
+    if !can_run?(cypress_config["run_on"]) || cypress_config["skip"] == true
       puts "Cypress is not enabled for this event/branch."
       return
     end
@@ -34,8 +34,8 @@ class CypressModule
   # helpers
 
   def cypress_config
-    cc = fetch(:cicd_config)
-    return cc["defaults"]["cypress"] || {}
+    bc = branch_settings
+    return bc["cypress"] || {}
   end
 
   def specs_to_run

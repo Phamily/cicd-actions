@@ -99,6 +99,12 @@ def sanitized_branch
   return b.gsub("/", "-")
 end
 
+def branch_settings
+  cc = fetch(:cicd_config)
+  bc = (cc["branch_settings"] || {})[branch] || {}
+  return merge_with_options(cc["defaults"], bc)
+end
+
 def can_run?(opts)
   return true if opts.nil?
   ref = fetch(:github_ref)
