@@ -80,6 +80,6 @@ kube_apply () {
 }
 
 #build_and_push
-test_cypress
-#test_rspec
+#test_cypress
+test_rspec
 #kube_apply

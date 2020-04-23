@@ -51,7 +51,7 @@ class KubeModule
       manifest = "/kube/build/#{name}.yml"
       puts "Building manifest #{name}."
       ctx = merge_with_options(cicdc["defaults"], e["kube"], comp)
-      write_template_file("/kube/#{cm}.yml.erb", manifest, context: ctx)
+      write_template_file("/kube/#{cm}.yml.erb", manifest, context: ctx.with_symbolized_keys)
       puts File.read(manifest)
       comp["build_manifest"] = manifest
     end
