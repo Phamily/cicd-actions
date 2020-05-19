@@ -58,7 +58,7 @@ def prepare
   puts "Current working directory: #{Dir.pwd}"
 end
 
-def start_dependencies
+def start_dependencies(opts={})
   # setup network
   sh "docker network create cicd"
 
@@ -73,7 +73,10 @@ def start_dependencies
 
   puts "Preparing database..."
   run_in_image "rake db:create"
-  run_in_image "rake db:reset"
+  run_in_image "rake db:schema:load"
+  if opts[:seed]
+    run_in_image "rake db:seed"
+  end
   puts "Test database prepared."
 end
 

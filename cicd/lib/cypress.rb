@@ -11,7 +11,7 @@ class CypressModule
       puts "Cypress is not enabled for this event/branch."
       return
     end
-    start_dependencies
+    start_dependencies(seed: true)
 
     # start docker and bind to port 3000
     puts "Starting server in background."
