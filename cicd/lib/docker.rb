@@ -37,7 +37,7 @@ class DockerModule
       login
       cache_image = nil
       # pull image
-      [sanitized_branch, "master"].each do |br|
+      [sanitized_branch, "develop", "master"].each do |br|
         begin 
           cache_image = pull_image(br)
         rescue => ex
