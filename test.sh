@@ -11,7 +11,8 @@ sudo docker build . -t cicd-actions:latest
 build_and_push() {
   #sudo docker build /home/alan/Projects/web/phamily-rails -t phamily-rails:latest
   sudo docker run \
-    -e INPUT_TASKS="docker:login,docker:push" \
+    -e INPUT_TASKS="docker:build,docker:push" \
+    -e INPUT_BUILD_FROM_CACHE=true \
     -e INPUT_IMAGE_NAME=phamily-rails \
     -e INPUT_IMAGE_NAMESPACE=phamily \
     -e INPUT_TEST_ENV_FILE=.github/test.env \
@@ -79,7 +80,7 @@ kube_apply () {
     cicd-actions:latest
 }
 
-#build_and_push
+build_and_push
 #test_cypress
-test_rspec
+#test_rspec
 #kube_apply

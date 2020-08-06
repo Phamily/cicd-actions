@@ -7,6 +7,7 @@ class DockerModule
     set :image_namespace, ENV['INPUT_IMAGE_NAMESPACE']
     set :image_basename, fetch(:image_name).split("/")[-1]
     set :build_artifact, ENV['INPUT_BUILD_ARTIFACT'] == "true"
+    set :build_from_cache, ENV['INPUT_BUILD_FROM_CACHE'] == "true"
     set :copy_paths, ENV['INPUT_COPY_PATHS']
   end
 
@@ -29,11 +30,28 @@ class DockerModule
   end
 
   def build
+    flag_cf = ""
+    if fetch(:build_from_cache)
+      puts "Attempting to build from cache"
+      # login to registry
+      login
+      cache_image = nil
+      # pull image
+      [sanitized_branch, "master"].each do |br|
+        begin 
+          cache_image = pull_image(br)
+        rescue => ex
+          puts "Could not pull #{br} remote image for cache."
+        end
+        if cache_image
+          flag_cf = "--cache-from #{cache_image}"
+          break
+        end
+      end
+    end
+    sh "docker build #{flag_cf} -t #{fetch(:image_name)} ."
     if fetch(:build_artifact)
-      sh "docker build . -t #{fetch(:image_name)}"
       sh "docker image save --output image.tar #{fetch(:image_name)}"
-    else
-      sh "docker build . -t #{fetch(:image_name)}"
     end
   end
 
@@ -59,9 +77,9 @@ class DockerModule
       return
     end
     tag = branch
-    full_remote_image = "#{fetch(:registry_url).gsub("https://", "")}/#{fetch(:image_namespace)}/#{fetch(:image_name)}:#{tag}"
-    sh "docker tag #{fetch(:image_name)}:latest #{full_remote_image}"
-    sh "docker push #{full_remote_image}"
+    frin = full_remote_image_name(tag)
+    sh "docker tag #{fetch(:image_name)}:latest #{frin}"
+    sh "docker push #{frin}"
   end
 
   def copy_paths
@@ -81,6 +99,19 @@ class DockerModule
       sh "ls -al #{path}"
     end
     sh "docker rm #{cid}"
+  end
+
+  private
+
+  def full_remote_image_name(tag)
+    full_remote_image = "#{fetch(:registry_url).gsub("https://", "")}/#{fetch(:image_namespace)}/#{fetch(:image_name)}:#{tag}"
+  end
+
+  def pull_image(tag)
+    frin = full_remote_image_name(tag)
+    puts "Pulling image"
+    sh "docker pull #{frin}"
+    return frin
   end
 
 end

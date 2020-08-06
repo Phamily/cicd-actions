@@ -41,6 +41,9 @@ inputs:
   build_artifact:
     description: "Only build the image and store as an artifact"
     required: false
+  build_from_cache:
+    description: "Attempt to pull image to use as cache"
+    required: false
   image_env_file:
     description: "Environment file for running image"
     required: false
