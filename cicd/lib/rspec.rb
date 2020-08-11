@@ -19,7 +19,7 @@ class RspecModule
     elsif specs == "all"
       files_args = ""
     end
-    run_in_image "rspec #{files_args}"
+    run_in_image "bundle exec rspec #{files_args}"
     stop_dependencies
   end
 

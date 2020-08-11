@@ -15,7 +15,7 @@ class CypressModule
 
     # start docker and bind to port 3000
     puts "Starting server in background."
-    run_in_image "rails s -p 3000 -b 0.0.0.0", "--name=cicd-app -d"
+    run_in_image "bundle exec rails s -p 3000 -b 0.0.0.0", "--name=cicd-app -d"
 
     # build cypress container
     sh "docker build . -f /cicd/Dockerfile.cypress -t cypress-runner"
