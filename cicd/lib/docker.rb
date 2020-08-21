@@ -86,7 +86,7 @@ class DockerModule
 
   def pull
     login
-    image = pull_image(sanitized_branch, tag_locally: true)
+    image = pull_image(remote_image_tag, tag_locally: true)
   end
 
   def retag
