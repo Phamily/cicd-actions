@@ -30,6 +30,7 @@ def prepare
   set :tasks, ENV['INPUT_TASKS'].split(",")
   set :image_name, ENV['INPUT_IMAGE_NAME']
   set :image_namespace, ENV['INPUT_IMAGE_NAMESPACE']
+  set :use_temporary_remote_image, ENV['INPUT_USE_TEMPORARY_REMOTE_IMAGE'] == "true"
   set :image_env_file, ENV['INPUT_IMAGE_ENV_FILE']
   set :aws_access_key, ENV['INPUT_AWS_ACCESS_KEY']
   set :aws_secret_access_key, ENV['INPUT_AWS_SECRET_ACCESS_KEY']
@@ -102,6 +103,15 @@ def sanitized_branch
   return b.gsub("/", "-")
 end
 
+def remote_image_tag
+  ret = sanitized_branch
+  return nil if ret.nil?
+  if fetch(:use_temporary_remote_image)
+    ret = "tmp-#{ret}"
+  end
+  return ret
+end
+
 def branch_settings
   cc = fetch(:cicd_config)
   bc = (cc["branch_settings"] || {})[branch] || {}
@@ -128,14 +138,25 @@ def can_run?(opts)
   return false
 end
 
+def full_remote_image_name(tag=nil)
+  tag ||= remote_image_tag
+  full_remote_image = "#{fetch(:registry_url).gsub("https://", "")}/#{fetch(:image_namespace)}/#{fetch(:image_name)}:#{tag}"
+end
+
+def full_local_image_name(tag=nil)
+  tag ||= sanitized_branch
+  return "#{fetch(:image_name)}:#{tag}"
+end
+
 def run_in_image(cmd, flags="")
   env_file_opt = ""
+  flin = full_local_image_name
   if fetch(:image_env_file) != nil
     env_file_opt= "--env-file=#{fetch(:image_env_file)}"
   else
     raise "Image environment variable file must be specified"
   end
-  sh "docker run --network=cicd --rm #{flags} #{env_file_opt} #{fetch(:image_name)} #{cmd}"
+  sh "docker run --network=cicd --rm #{flags} #{env_file_opt} #{flin} #{cmd}"
 end
 
 def sh(cmd, opts={})

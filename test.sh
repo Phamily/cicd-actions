@@ -8,10 +8,67 @@ sudo docker build . -t cicd-actions:latest
 #echo "Testing build..."
 #sudo docker run -e INPUT_TASKS="docker:build" -e INPUT_IMAGE_NAME=cicd-test -e INPUT_TESTS=run_test.sh -e INPUT_BUILD_ARTIFACT="true" -e GITHUB_REF=refs/heads/alan/cicd -v `pwd`/test_repo:/test_repo -w /test_repo cicd-actions:latest
 
-build_and_push() {
+build() {
   #sudo docker build /home/alan/Projects/web/phamily-rails -t phamily-rails:latest
   sudo docker run \
-    -e INPUT_TASKS="docker:build,docker:push" \
+    -e INPUT_TASKS="docker:build" \
+    -e INPUT_BUILD_FROM_CACHE=true \
+    -e INPUT_IMAGE_NAME=phamily-rails \
+    -e INPUT_IMAGE_NAMESPACE=phamily \
+    -e INPUT_TEST_ENV_FILE=.github/test.env \
+    -e INPUT_AWS_ACCESS_KEY=$PHAMILY_CICD_AWS_ACCESS_KEY \
+    -e INPUT_AWS_SECRET_ACCESS_KEY=$PHAMILY_CICD_AWS_SECRET_ACCESS_KEY \
+    -e INPUT_AWS_REGION=us-east-2 \
+    -e GITHUB_REF=refs/heads/alan/cicd-test \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    -v /home/alan/Projects/web/phamily-rails:/app \
+    -w /app \
+    --rm \
+    cicd-actions:latest
+}
+
+push() {
+  #sudo docker build /home/alan/Projects/web/phamily-rails -t phamily-rails:latest
+  sudo docker run \
+    -e INPUT_TASKS="docker:push" \
+    -e INPUT_BUILD_FROM_CACHE=true \
+    -e INPUT_IMAGE_NAME=phamily-rails \
+    -e INPUT_IMAGE_NAMESPACE=phamily \
+    -e INPUT_USE_TEMPORARY_REMOTE_IMAGE=true \
+    -e INPUT_TEST_ENV_FILE=.github/test.env \
+    -e INPUT_AWS_ACCESS_KEY=$PHAMILY_CICD_AWS_ACCESS_KEY \
+    -e INPUT_AWS_SECRET_ACCESS_KEY=$PHAMILY_CICD_AWS_SECRET_ACCESS_KEY \
+    -e INPUT_AWS_REGION=us-east-2 \
+    -e GITHUB_REF=refs/heads/alan/cicd-test \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    -v /home/alan/Projects/web/phamily-rails:/app \
+    -w /app \
+    --rm \
+    cicd-actions:latest
+}
+
+pull() {
+  #sudo docker build /home/alan/Projects/web/phamily-rails -t phamily-rails:latest
+  sudo docker run \
+    -e INPUT_TASKS="docker:pull" \
+    -e INPUT_BUILD_FROM_CACHE=true \
+    -e INPUT_IMAGE_NAME=phamily-rails \
+    -e INPUT_IMAGE_NAMESPACE=phamily \
+    -e INPUT_TEST_ENV_FILE=.github/test.env \
+    -e INPUT_AWS_ACCESS_KEY=$PHAMILY_CICD_AWS_ACCESS_KEY \
+    -e INPUT_AWS_SECRET_ACCESS_KEY=$PHAMILY_CICD_AWS_SECRET_ACCESS_KEY \
+    -e INPUT_AWS_REGION=us-east-2 \
+    -e GITHUB_REF=refs/heads/alan/cicd-test \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    -v /home/alan/Projects/web/phamily-rails:/app \
+    -w /app \
+    --rm \
+    cicd-actions:latest
+}
+
+retag() {
+  sudo docker run \
+    -e INPUT_TASKS="docker:retag" \
     -e INPUT_BUILD_FROM_CACHE=true \
     -e INPUT_IMAGE_NAME=phamily-rails \
     -e INPUT_IMAGE_NAMESPACE=phamily \
@@ -80,7 +137,10 @@ kube_apply () {
     cicd-actions:latest
 }
 
-build_and_push
+#build
+#push
+#pull
+retag
 #test_cypress
 #test_rspec
 #kube_apply

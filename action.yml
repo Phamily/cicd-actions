@@ -17,6 +17,9 @@ inputs:
   image_tar:
     description: "The path to the tar of the built image"
     required: false
+  use_temporary_remote_image:
+    description: "Use temporary remote image when pushing or pulling"
+    required: false
   registry_url:
     description: "The registry URL"
     required: false

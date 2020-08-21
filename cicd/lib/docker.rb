@@ -37,7 +37,7 @@ class DockerModule
       login
       cache_image = nil
       # pull image
-      [sanitized_branch, "develop", "master"].each do |br|
+      [remote_image_tag, "tmp-#{remote_image_tag}", "develop", "master"].each do |br|
         begin 
           cache_image = pull_image(br)
         rescue => ex
@@ -49,9 +49,10 @@ class DockerModule
         end
       end
     end
-    sh "docker build #{flag_cf} -t #{fetch(:image_name)} ."
+    flin = full_local_image_name
+    sh "docker build #{flag_cf} -t #{flin} ."
     if fetch(:build_artifact)
-      sh "docker image save --output image.tar #{fetch(:image_name)}"
+      sh "docker image save --output image.tar #{flin}"
     end
   end
 
@@ -71,21 +72,43 @@ class DockerModule
   end
 
   def push
-    branch = sanitized_branch
-    if branch.nil?
+    login
+    rtag = remote_image_tag
+    if rtag.nil?
       puts "Only pushing images for branches (ref=#{fetch(:github_ref)})."
       return
     end
-    tag = branch
-    frin = full_remote_image_name(tag)
-    sh "docker tag #{fetch(:image_name)}:latest #{frin}"
+    frin = full_remote_image_name
+    flin = full_local_image_name
+    sh "docker tag #{flin} #{frin}"
     sh "docker push #{frin}"
+  end
+
+  def pull
+    login
+    image = pull_image(sanitized_branch, tag_locally: true)
+  end
+
+  def retag
+    login
+    repo_name = "#{fetch(:image_namespace)}/#{fetch(:image_name)}"
+    tmp_tag = "tmp-#{remote_image_tag}"
+
+    # find image manifest
+    manifest = `aws ecr batch-get-image --repository-name #{repo_name} --image-ids imageTag=#{tmp_tag} --query 'images[].imageManifest' --output text`
+    raise "Image manifest not found" if manifest == "" || manifest.nil?
+    puts "Found image manifest: #{manifest}"
+    File.write("/tmp/img_manifest.json", manifest)
+
+    # set new tag
+    `aws ecr put-image --repository-name #{repo_name} --image-tag #{remote_image_tag} --image-manifest file:///tmp/img_manifest.json`
+    puts "Image retagged to #{remote_image_tag}."
   end
 
   def copy_paths
     paths = fetch(:copy_paths)
-    img = fetch(:image_name)
-    cid = `docker create #{img}`.strip
+    flin = full_local_image_name
+    cid = `docker create #{flin}`.strip
     stat = File.stat("/github/workspace")
     paths.split(",").each do |path|
       puts "Copying path #{path}"
@@ -103,14 +126,15 @@ class DockerModule
 
   private
 
-  def full_remote_image_name(tag)
-    full_remote_image = "#{fetch(:registry_url).gsub("https://", "")}/#{fetch(:image_namespace)}/#{fetch(:image_name)}:#{tag}"
-  end
-
-  def pull_image(tag)
+  def pull_image(tag, opts={})
     frin = full_remote_image_name(tag)
+    flin = full_local_image_name(tag)
     puts "Pulling image"
     sh "docker pull #{frin}"
+    if opts[:tag_locally]
+      puts "Tagging image locally"
+      sh "docker tag #{frin} #{flin}"
+    end
     return frin
   end
 
