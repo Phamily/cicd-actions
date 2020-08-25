@@ -56,6 +56,11 @@ class KubeModule
       comp["build_manifest"] = manifest
     end
 
+    puts "Stopping required existing components"
+    apps.select{|c| c['stop_on_deploy'] == true}.each do |c|
+      kubecmd "delete deployment #{c["name"]} --ignore-not-found"
+    end
+
     puts "Updating service components."
     svcs.each do |c|
       next if c["skip"] == true
