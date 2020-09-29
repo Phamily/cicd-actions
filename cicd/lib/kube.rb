@@ -70,22 +70,35 @@ class KubeModule
       wait_for_resource("deployment", c["name"])
     end
 
-    puts "Running job components."
-    jobs.each do |c|
-      next if c["skip"] == true
-      puts "Running init: #{c["name"]}"
-      # delete previous job if present
-      kubecmd "delete job #{c["name"]} --ignore-not-found"
-      # run job
-      kubecmd "apply -f #{c["build_manifest"]}"
-      # wait for finished
-      wait_for_resource("job", c["name"])
-      # get logs
-      kubecmd "logs job/#{c["name"]}"
+    puts "Running pre-app job components."
+    jobs.select{|j| j['run_stage'] != 'post_app'}.each do |c|
+      run_resource('job', c)
     end
 
     puts "Updating deployment components."
     kubecmd "apply #{apps.select{|c| c["skip"] != true}.map{|c| "-f #{c["build_manifest"]}"}.join(" ")}"
+
+    puts "Running post-app job components."
+    jobs.select{|j| j['run_stage'] == 'post_app'}.each do |c|
+      run_resource('job', c)
+    end
+  end
+
+  def run_resource(type, c)
+    next if c["skip"] == true
+    puts "Running #{type}: #{c["name"]}"
+    if type == 'job'
+      # delete previous job if present
+      kubecmd "delete job #{c["name"]} --ignore-not-found"
+    end
+    # run 
+    kubecmd "apply -f #{c["build_manifest"]}"
+    if c["wait"] != false
+      # wait for finished
+      wait_for_resource(type, c["name"])
+      # get logs
+      kubecmd "logs #{type}/#{c["name"]}"
+    end
   end
 
   def wait_for_resource(type, name, opts={})
