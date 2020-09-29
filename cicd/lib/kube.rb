@@ -85,7 +85,7 @@ class KubeModule
   end
 
   def run_resource(type, c)
-    next if c["skip"] == true
+    return if c["skip"] == true
     puts "Running #{type}: #{c["name"]}"
     if type == 'job'
       # delete previous job if present
