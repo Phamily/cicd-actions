@@ -103,12 +103,15 @@ def sanitized_branch
   return b.gsub("/", "-")
 end
 
-def remote_image_tag
+def image_tag
   ret = sanitized_branch
   return nil if ret.nil?
-  if fetch(:use_temporary_remote_image)
-    ret = "tmp-#{ret}"
-  end
+end
+
+def tmp_image_tag
+  ret = image_tag
+  return nil if ret.nil?
+  ret = "tmp-#{ret}"
   return ret
 end
 
@@ -138,13 +141,13 @@ def can_run?(opts)
   return false
 end
 
-def full_remote_image_name(tag=nil)
-  tag ||= remote_image_tag
+def full_remote_image_name(tag: nil)
+  tag ||= tmp_image_tag
   full_remote_image = "#{fetch(:registry_url).gsub("https://", "")}/#{fetch(:image_namespace)}/#{fetch(:image_name)}:#{tag}"
 end
 
-def full_local_image_name(tag=nil)
-  tag ||= sanitized_branch
+def full_local_image_name(tag: nil)
+  tag ||= tmp_image_tag
   return "#{fetch(:image_name)}:#{tag}"
 end
 

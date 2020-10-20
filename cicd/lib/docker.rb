@@ -37,7 +37,7 @@ class DockerModule
       login
       cache_image = nil
       # pull image
-      [remote_image_tag, "tmp-#{remote_image_tag}", "develop", "master"].each do |br|
+      [image_tag, tmp_image_tag, "develop", "master"].each do |br|
         begin 
           cache_image = pull_image(br)
         rescue => ex
@@ -73,7 +73,7 @@ class DockerModule
 
   def push
     login
-    rtag = remote_image_tag
+    rtag = image_tag
     if rtag.nil?
       puts "Only pushing images for branches (ref=#{fetch(:github_ref)})."
       return
@@ -86,13 +86,13 @@ class DockerModule
 
   def pull
     login
-    image = pull_image(remote_image_tag, tag_locally: true)
+    image = pull_image(image_tag, tag_locally: true)
   end
 
   def retag
     login
     repo_name = "#{fetch(:image_namespace)}/#{fetch(:image_name)}"
-    tmp_tag = "tmp-#{remote_image_tag}"
+    tmp_tag = tmp_image_tag
 
     # find image manifest
     manifest = `aws ecr batch-get-image --repository-name #{repo_name} --image-ids imageTag=#{tmp_tag} --query 'images[].imageManifest' --output text`
@@ -101,8 +101,8 @@ class DockerModule
     File.write("/tmp/img_manifest.json", manifest)
 
     # set new tag
-    `aws ecr put-image --repository-name #{repo_name} --image-tag #{remote_image_tag} --image-manifest file:///tmp/img_manifest.json`
-    puts "Image retagged to #{remote_image_tag}."
+    `aws ecr put-image --repository-name #{repo_name} --image-tag #{image_tag} --image-manifest file:///tmp/img_manifest.json`
+    puts "Image retagged to #{image_tag}."
   end
 
   def copy_paths
@@ -127,8 +127,8 @@ class DockerModule
   private
 
   def pull_image(tag, opts={})
-    frin = full_remote_image_name(tag)
-    flin = full_local_image_name(tag)
+    frin = full_remote_image_name(tag: tag)
+    flin = full_local_image_name(tag: tag)
     puts "Pulling image"
     sh "docker pull #{frin}"
     if opts[:tag_locally]
