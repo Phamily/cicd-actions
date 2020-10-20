@@ -105,7 +105,7 @@ end
 
 def image_tag
   ret = sanitized_branch
-  return nil if ret.nil?
+  return ret
 end
 
 def tmp_image_tag
