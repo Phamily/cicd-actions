@@ -86,7 +86,7 @@ class DockerModule
 
   def pull
     login
-    image = pull_image(image_tag, tag_locally: true)
+    image = pull_image(tmp_image_tag, tag_locally: true)
   end
 
   def retag
