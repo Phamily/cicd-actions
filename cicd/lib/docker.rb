@@ -105,6 +105,11 @@ class DockerModule
     puts "Image retagged to #{image_tag}."
   end
 
+  def prune_images
+    puts "Pruning unused images."
+    sh "docker image prune -f"
+  end
+
   def copy_paths
     paths = fetch(:copy_paths)
     flin = full_local_image_name
