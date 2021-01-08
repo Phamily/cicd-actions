@@ -60,6 +60,8 @@ def prepare
 end
 
 def start_dependencies(opts={})
+  stop_dependencies(ignore_error: true)
+
   # setup network
   sh "docker network create cicd"
 
@@ -81,9 +83,9 @@ def start_dependencies(opts={})
   puts "Test database prepared."
 end
 
-def stop_dependencies
-  sh "docker rm -f cicd-postgres cicd-redis"
-  sh "docker network rm cicd"
+def stop_dependencies(ignore_error: false)
+  sh "docker rm -f $(docker ps -aq --filter=\"network=cicd\")", ignore_error: ignore_error
+  sh "docker network rm cicd", ignore_error: ignore_error
 end
 
 # helper methods
@@ -166,7 +168,7 @@ def sh(cmd, opts={})
   txt = opts[:text] || cmd
   puts "Running: #{txt}"
   ret = system(cmd)
-  raise "Command did not finish successfully" if ret != true
+  raise "Command did not finish successfully" if ret != true && opts[:ignore_error] != true
 end
 
 def set(name, val)
