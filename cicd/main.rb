@@ -35,6 +35,7 @@ def prepare
   set :aws_access_key, ENV['INPUT_AWS_ACCESS_KEY']
   set :aws_secret_access_key, ENV['INPUT_AWS_SECRET_ACCESS_KEY']
   set :aws_region, ENV['INPUT_AWS_REGION']
+  set :keep_dependencies, ENV['INPUT_KEEP_DEPENDENCIES'] == "true"
 
   # github env vars
   set :github_ref, ENV['GITHUB_REF']

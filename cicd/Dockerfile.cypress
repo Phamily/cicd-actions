@@ -1,6 +1,8 @@
-FROM cypress/base:10
+FROM cypress/browsers:chrome69
 
-RUN npm install --save-dev cypress
+RUN apt-get update
+RUN apt-get install -qy libgbm-dev
+RUN npm install --save-dev cypress@5.0.0
 
 ADD ./cypress cypress
 ADD .git .git

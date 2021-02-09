@@ -11,7 +11,7 @@ class CypressModule
       puts "Cypress is not enabled for this event/branch."
       return
     end
-    start_dependencies(seed: true)
+    start_dependencies(seed: true) unless fetch(:keep_dependencies)
 
     # start docker and bind to port 3000
     puts "Starting server in background."
@@ -25,7 +25,7 @@ class CypressModule
     flag_record = fetch(:cypress_record_enabled) ? "--record" : ""
     specs = specs_to_run
     flag_specs = specs.empty? ? "" : " --spec \"#{specs.join(",")}\""
-    sh "docker run --network=cicd --rm -e CYPRESS_RECORD_KEY=#{fetch(:cypress_record_key)} cypress-runner run #{flag_record}#{flag_specs}"
+    sh "docker run --ipc=host --network=cicd --rm -e CYPRESS_RECORD_KEY=#{fetch(:cypress_record_key)} cypress-runner run --headless --browser chrome #{flag_record}#{flag_specs}"
     sh "docker rm -f cicd-app"
     stop_dependencies
   end

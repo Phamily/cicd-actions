@@ -6,8 +6,8 @@ echo "Building..."
 sudo docker build . -t cicd-actions:latest
 
 echo "Cleaning..."
-sudo docker rm -f cicd-postgres cicd-redis cicd-app || true
-sudo docker network rm cicd || true
+sudo docker rm -f cicd-app || true
+#sudo docker network rm cicd || true
 
 #echo "Testing build..."
 #sudo docker run -e INPUT_TASKS="docker:build" -e INPUT_IMAGE_NAME=cicd-test -e INPUT_TESTS=run_test.sh -e INPUT_BUILD_ARTIFACT="true" -e GITHUB_REF=refs/heads/alan/cicd -v `pwd`/test_repo:/test_repo -w /test_repo cicd-actions:latest
@@ -16,7 +16,7 @@ build() {
   #sudo docker build /home/alan/Projects/web/phamily-rails -t phamily-rails:latest
   sudo docker run \
     -e INPUT_TASKS="docker:build" \
-    -e INPUT_BUILD_FROM_CACHE=true \
+    -e INPUT_BUILD_FROM_CACHE=false \
     -e INPUT_IMAGE_NAME=phamily-rails \
     -e INPUT_IMAGE_NAMESPACE=phamily \
     -e INPUT_TEST_ENV_FILE=.github/test.env \
@@ -98,6 +98,9 @@ test_cypress () {
     -e INPUT_IMAGE_ENV_FILE=.github/cicd.env \
     -e GITHUB_REF=refs/heads/alan/cicd-test \
     -e GITHUB_EVENT_NAME=push \
+    -e INPUT_CYPRESS_RECORD_ENABLED=true \
+    -e INPUT_CYPRESS_RECORD_KEY=$PHAMILY_CYPRESS_RECORD_KEY \
+    -e INPUT_KEEP_DEPENDENCIES=false \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -v /home/alan/Projects/web/phamily-rails:/app \
     -w /app \
@@ -141,7 +144,7 @@ kube_apply () {
     cicd-actions:latest
 }
 
-#build
+build
 #push
 #pull
 #retag
