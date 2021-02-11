@@ -46,7 +46,9 @@ class CypressModule
     flag_specs = specs.empty? ? "" : " --spec \"#{specs.join(",")}\""
     sh "docker run --ipc=host --rm #{flag_deploy} -e CYPRESS_RECORD_KEY=#{fetch(:cypress_record_key)} cypress-runner run --headless --browser chrome #{flag_record}#{flag_specs}"
     sh "docker rm -f cicd-app"
-    stop_dependencies
+
+    # stop dependencies
+    stop_dependencies if !use_deploy
   end
 
   private
