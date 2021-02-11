@@ -124,6 +124,11 @@ def branch_settings
   return merge_with_options(cc["defaults"], bc)
 end
 
+def branch_environments
+  cc = fetch(:cicd_config)
+  return cc["environments"].select{|e| e['branch'] == branch}
+end
+
 def can_run?(opts)
   return true if opts.nil?
   ref = fetch(:github_ref)
