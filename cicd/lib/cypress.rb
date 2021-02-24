@@ -68,8 +68,10 @@ class CypressModule
     puts "Waiting for cypress to finish. Check cypress.io for run details."
     sh "docker wait #{instances.join(" ")}"
 
+    succeeded = true
     instances.each do |inst|
       sh "docker logs #{inst}"
+      succeeded = false if `docker inspect #{inst} --format='{{.State.ExitCode}}'`.to_i != 0
     end
 
     sh "docker rm $(docker ps -a -f status=exited | grep cypress | awk '{print $1}')"
@@ -78,6 +80,9 @@ class CypressModule
     if !use_external_server
       sh "docker rm -f cicd-app"
       stop_dependencies
+    end
+    if !succeeded
+      raise "Cypress tests did not succeed."
     end
   end
 
