@@ -57,7 +57,13 @@ inputs:
     description: "Enable cypress recording"
     required: false
   cypress_use_deploy_url:
-    description: "Use deploy URL for Cypress"
+    description: "Determine deploy URL based on branch for Cypress"
+    required: false
+  cypress_base_url:
+    description: "Use base URL for Cypress"
+    required: false
+  cypress_parallel_count:
+    description: "Number of instances to run in parallel for Cypress"
     required: false
   kube_cluster_name:
     description: "Kube cluster name"

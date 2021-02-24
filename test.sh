@@ -99,7 +99,7 @@ test_cypress () {
     -e GITHUB_REF=refs/heads/alan/cicd-test \
     -e GITHUB_EVENT_NAME=push \
     -e INPUT_CYPRESS_RECORD_ENABLED=true \
-    -e INPUT_CYPRESS_USE_DEPLOY_URL=true \
+    -e INPUT_CYPRESS_BASE_URL=preview1.phamily.com \
     -e INPUT_CYPRESS_RECORD_KEY=$PHAMILY_CYPRESS_RECORD_KEY \
     -e INPUT_KEEP_DEPENDENCIES=false \
     -v /var/run/docker.sock:/var/run/docker.sock \
