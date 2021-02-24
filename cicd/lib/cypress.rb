@@ -29,6 +29,7 @@ class CypressModule
         denv = branch_environments.first
         if denv.nil?
           puts "No deploy environment for Cypress to use."
+          return
         end
         base_url = denv["kube"]["env"]["PHAMILY_HOST_URL"]
       end
