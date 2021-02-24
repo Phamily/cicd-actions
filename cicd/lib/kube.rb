@@ -23,6 +23,17 @@ class KubeModule
     end
   end
 
+  def output_deploy_url
+    denv = branch_environments.first
+    if denv.nil?
+      puts "::set-output name=deploy_url::none"
+    else
+      deploy_url = denv["kube"]["env"]["PHAMILY_HOST_URL"]
+      deploy_url = "http://" + deploy_url if !deploy_url.start_with?("http")
+      puts "::set-output name=deploy_url::#{deploy_url}"
+    end
+  end
+
   private
 
   def build_vars(e)

@@ -71,6 +71,9 @@ inputs:
   copy_paths:
     description: "Paths to copy"
     required: false
+outputs:
+  deploy_url:
+    description: "Deploy URL for this branch"
 runs:
   using: 'docker'
   image: 'Dockerfile'
