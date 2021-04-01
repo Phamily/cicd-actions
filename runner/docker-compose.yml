@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  runner:
+    build: .
+    environment:
+      - PHAMILY_REPO
+      - GITHUB_ACCESS_TOKEN
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /root/actions-runner:/root/actions-runner
