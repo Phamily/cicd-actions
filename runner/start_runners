@@ -1,0 +1,36 @@
+#!/usr/bin/env ruby
+
+# Install ruby with rvm
+# Run using tmux or potentially foreman
+# There should be a file to build the runner directories
+# and file to start the individual runner
+
+RUNNER_DIR = "/root/actions-runner"
+BASE_DIR = "/root/actions-runner/base"
+
+def copy_base_dir(inst)
+  raise "Must specify instance" if inst.nil?
+  `cp -a #{BASE_DIR} #{RUNNER_DIR}/#{inst}`
+end
+
+def run_instance(inst)
+  Dir.chdir File.join(BASE_DIR, inst)
+  name = "#{ENV['HOSTNAME']}-#{inst}"
+  token = get_token()
+  puts "Configuring instance #{name}"
+  `./config.sh --name #{name} --url https://github.com/#{REPO} --token #{token}`
+  puts "Running instance #{name}"
+  `./run.sh`
+end
+
+def get_token
+  token = `curl -sX POST -H "Authorization: token #{ACCESS_TOKEN}" https://api.github.com/repos/#{REPO}/actions/runners/registration-token | jq .token --raw-output`
+end
+
+def cleanup
+  `./config.sh remove --unattended --token ${REG_TOKEN} || true`
+end
+
+def trap_signals
+
+end
