@@ -6,6 +6,8 @@ You must create a personal access token for registering the runner (https://docs
 
 Download the *Linux* runner to /root/actions-runner/base
 
+Set the `GITHUB_ACCESS_TOKEN` and `PHAMILY_REPO` environment variables in /root/.bashrc
+
 ## Build
 
 ```
@@ -15,6 +17,7 @@ $ sudo docker build -t runner-image
 ## Start
 
 ```
+cd /root/cicd-actions/runner
 docker-compose build
-docker-compose up --scale runner=2 -d
+docker-compose up --scale runner=5 -d
 ```
