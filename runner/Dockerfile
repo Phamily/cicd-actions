@@ -11,10 +11,9 @@ RUN curl -fsSL https://get.docker.com -o get-docker.sh
 RUN sh get-docker.sh
 
 # install yarn
-RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
-RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
-RUN apt update -y
-RUN apt-get -y install yarn
+RUN curl -fsSL https://deb.nodesource.com/setup_12.x | bash -
+RUN apt-get install -y nodejs
+RUN npm install --global yarn
 
 #ENV RUNNER_DIR /actions-runner
 #WORKDIR /actions-runner
