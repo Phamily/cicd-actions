@@ -14,7 +14,7 @@ cd /root/actions-runner/$INSTNAME
 REG_TOKEN=$(curl -sX POST -H "Authorization: token ${ACCESS_TOKEN}" https://api.github.com/repos/${REPO}/actions/runners/registration-token | jq .token --raw-output)
 
 
-./config.sh --name $INSTNAME --url https://github.com/${REPO} --token ${REG_TOKEN} 0<&-
+./config.sh --name $INSTNAME --url https://github.com/${REPO} --token ${REG_TOKEN} 0</dev/null
 
 cleanup() {
     echo "Removing runner..."
