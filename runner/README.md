@@ -8,6 +8,17 @@ Download the *Linux* runner to /root/actions-runner/base
 
 Set the `GITHUB_ACCESS_TOKEN` and `PHAMILY_REPO` environment variables in /root/.bashrc
 
+```
+$ apt-get update -y && apt-get install -y software-properties-common
+$ add-apt-repository ppa:git-core/ppa -y
+$ apt-get update -y 
+$ apt-get install -y git curl jq build-essential libssl-dev libffi-dev python3 python3-venv python3-dev
+$ apt-get update -y
+$ apt-get install -y curl jq
+$ apt-get install ruby-full
+$ gem install foreman
+```
+
 ## Build
 
 ```

@@ -6,13 +6,15 @@ ACCESS_TOKEN=$GITHUB_ACCESS_TOKEN
 
 export RUNNER_ALLOW_RUNASROOT="1"
 
+echo "Starting runner: ${INSTNAME}"
+
 cp -a /root/actions-runner/base /root/actions-runner/$INSTNAME
 cd /root/actions-runner/$INSTNAME
 
 REG_TOKEN=$(curl -sX POST -H "Authorization: token ${ACCESS_TOKEN}" https://api.github.com/repos/${REPO}/actions/runners/registration-token | jq .token --raw-output)
 
 
-./config.sh --url https://github.com/${REPO} --token ${REG_TOKEN}
+./config.sh --name $INSTNAME --url https://github.com/${REPO} --token ${REG_TOKEN} 0<&-
 
 cleanup() {
     echo "Removing runner..."
