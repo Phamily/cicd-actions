@@ -76,10 +76,10 @@ def start_dependencies(opts={})
   puts "Redis started"
 
   puts "Preparing database..."
-  run_in_image "rake db:create"
-  run_in_image "rake db:schema:load"
+  run_in_image "bundle exec rake db:create"
+  run_in_image "bundle exec rake db:schema:load"
   if opts[:seed]
-    run_in_image "rake db:seed"
+    run_in_image "bundle exec rake db:seed"
   end
   puts "Test database prepared."
 end

@@ -27,8 +27,16 @@ $ sudo docker build -t runner-image
 
 ## Start
 
+For Foreman
+
 ```
-cd /root/cicd-actions/runner
-docker-compose build
-docker-compose up --scale runner=5 -d
+$ cd /root/actions-runner
+$ foreman start
+```
+
+For Docker
+```
+$ cd /root/cicd-actions/runner
+$ docker-compose build
+$ docker-compose up --scale runner=5 -d
 ```
