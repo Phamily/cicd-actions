@@ -37,7 +37,7 @@ class DockerModule
       login
       cache_image = nil
       # pull image
-      [image_tag, tmp_image_tag, "develop", "master"].each do |br|
+      [image_tag, tmp_image_tag, "master"].each do |br|
         begin 
           cache_image = pull_image(br)
         rescue => ex
