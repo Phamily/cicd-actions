@@ -1,0 +1,49 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: <%= var(:name) %>
+spec:
+  template:
+    metadata:
+      annotations:
+        alpha.image.policy.openshift.io/resolve-names: '*'
+      labels:
+        name: <%= var(:name) %>
+    spec:
+      volumes:
+      - name: shared
+        emptyDir: {}
+      containers:
+      - name: app
+        image: <%= var(:app_image_url) %>
+        imagePullPolicy: Always
+        env:
+        - name: KUBE_APPLY_AT
+          value: "<%= Time.now.to_i %>"
+        <% var(:env).each do |k, v| %>
+        - name: <%= k %>
+          value: <%= v.to_s.inspect %>
+        <% end %>
+        volumeMounts:
+        - name: shared
+          mountPath: /shared_pod
+  replicas: 1
+  selector:
+    matchLabels:
+      name: <%= var(:name) %>
+
+<% if var(:has_endpoint) %>
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: <%= var(:name) %>
+spec:
+  type: LoadBalancer
+  selector:
+    name: <%= var(:name) %>
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 3000
+<% end %>

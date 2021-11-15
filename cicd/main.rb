@@ -43,7 +43,7 @@ def prepare
 
   # cicd config
   if File.exists?(".github/cicd.yml")
-    set :cicd_config, YAML.load_file(".github/cicd.yml")
+    set :cicd_config, YAML.load( parse_erb(".github/cicd.yml") )
   else
     raise "Please add .github/cicd.yml"
   end
@@ -168,6 +168,11 @@ def run_in_image(cmd, flags="")
     raise "Image environment variable file must be specified"
   end
   sh "docker run --network=cicd --rm #{flags} #{env_file_opt} #{flin} #{cmd}"
+end
+
+def parse_erb(file_path)
+  erb = ERB.new(File.read(file_path))
+  return erb.result(binding)
 end
 
 def sh(cmd, opts={})
