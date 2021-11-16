@@ -30,7 +30,7 @@ def prepare
   set :tasks, ENV['INPUT_TASKS'].split(",")
   set :image_name, ENV['INPUT_IMAGE_NAME']
   set :image_namespace, ENV['INPUT_IMAGE_NAMESPACE']
-  set :use_temporary_remote_image, ENV['INPUT_USE_TEMPORARY_REMOTE_IMAGE'] == "true"
+  set :use_temporary_remote_image, ENV['INPUT_USE_TEMPORARY_REMOTE_IMAGE'] != "false"
   set :image_env_file, ENV['INPUT_IMAGE_ENV_FILE']
   set :aws_access_key, ENV['INPUT_AWS_ACCESS_KEY']
   set :aws_secret_access_key, ENV['INPUT_AWS_SECRET_ACCESS_KEY']
@@ -150,12 +150,16 @@ def can_run?(opts)
 end
 
 def full_remote_image_name(tag: nil)
-  tag ||= tmp_image_tag
+  if tag.nil?
+    tag = fetch(:use_temporary_remote_image) ? tmp_image_tag : image_tag
+  end
   full_remote_image = "#{fetch(:registry_url).gsub("https://", "")}/#{fetch(:image_namespace)}/#{fetch(:image_name)}:#{tag}"
 end
 
 def full_local_image_name(tag: nil)
-  tag ||= tmp_image_tag
+  if tag.nil?
+    tag = fetch(:use_temporary_remote_image) ? tmp_image_tag : image_tag
+  end
   return "#{fetch(:image_name)}:#{tag}"
 end
 
