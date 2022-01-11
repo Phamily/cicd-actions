@@ -14,6 +14,9 @@ inputs:
   image_namespace:
     description: "The namespace of the image you would like to push"
     required: false
+  image_tag_style:
+    description: "The style of the image tag [branch | sha]"
+    required: false
   image_tar:
     description: "The path to the tar of the built image"
     required: false
@@ -70,6 +73,9 @@ inputs:
     required: false
   copy_paths:
     description: "Paths to copy"
+    required: false
+  lambda_function_name:
+    description: "Lambda function name"
     required: false
 outputs:
   deploy_url:

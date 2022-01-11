@@ -4,6 +4,7 @@ require_relative 'lib/docker'
 require_relative 'lib/cypress'
 require_relative 'lib/kube'
 require_relative 'lib/rspec'
+require_relative 'lib/lambda'
 require 'erb'
 require 'yaml'
 require 'base64'
@@ -14,6 +15,7 @@ MODULES = {
   cypress: CypressModule.new,
   kube: KubeModule.new,
   rspec: RspecModule.new,
+  lambda: LambdaModule.new
 }
 OPTIONS = {}
 
@@ -30,6 +32,7 @@ def prepare
   set :tasks, ENV['INPUT_TASKS'].split(",")
   set :image_name, ENV['INPUT_IMAGE_NAME']
   set :image_namespace, ENV['INPUT_IMAGE_NAMESPACE']
+  set :image_tag_style, ENV['INPUT_IMAGE_TAG_STYLE'] || 'branch'
   set :use_temporary_remote_image, ENV['INPUT_USE_TEMPORARY_REMOTE_IMAGE'] != "false"
   set :image_env_file, ENV['INPUT_IMAGE_ENV_FILE']
   set :aws_access_key, ENV['INPUT_AWS_ACCESS_KEY']
@@ -39,6 +42,7 @@ def prepare
 
   # github env vars
   set :github_ref, ENV['GITHUB_REF']
+  set :github_sha, ENV['GITHUB_SHA']
   set :github_event_name, ENV['GITHUB_EVENT_NAME']
 
   # cicd config
@@ -108,6 +112,9 @@ end
 
 def image_tag
   ret = sanitized_branch
+  if fetch(:image_tag_style) == 'sha'
+    ret = fetch(:github_sha)[0..6]
+  end
   return ret
 end
 
