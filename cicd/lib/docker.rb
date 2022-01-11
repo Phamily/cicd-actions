@@ -50,7 +50,15 @@ class DockerModule
       end
     end
     flin = full_local_image_name
-    sh "docker build #{flag_cf} -t #{flin} ."
+    dbc = docker_build_config || {}
+    cmd_flags = dbc["flags"] || ""
+
+    build_cmd = "docker build #{flag_cf} #{cmd_flags} -t #{flin} .".squeeze(" ")
+    if dbc["dir"]
+      build_cmd = "cd #{dbc["dir"]} && #{build_cmd}"
+    end
+    sh build_cmd
+
     if fetch(:build_artifact)
       sh "docker image save --output image.tar #{flin}"
     end
@@ -141,6 +149,10 @@ class DockerModule
       sh "docker tag #{frin} #{flin}"
     end
     return frin
+  end
+
+  def docker_build_config
+    fetch(:cicd_config)["defaults"]["docker"]["build"] rescue nil
   end
 
 end
