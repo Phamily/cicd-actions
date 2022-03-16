@@ -114,7 +114,7 @@ class KubeModule
 
   def wait_for_resource(type, name, opts={})
     type = type.to_s
-    timeout = opts[:timeout] || 300
+    timeout = opts[:timeout] || 600
     timeout_at = Time.now + timeout
     puts "Waiting for #{type} #{name}."
     loop do
