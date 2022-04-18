@@ -10,7 +10,7 @@ class AptibleModule
   def login
     apt_email = fetch(:aptible_email)
     apt_pw = fetch(:aptible_password)
-    sh "aptible login --email #{apt_email} --password #{apt_pw}"
+    sh "aptible login --email \"#{apt_email}\" --password \"#{apt_pw}\""
   end
 
   def deploy
