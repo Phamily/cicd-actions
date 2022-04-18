@@ -20,7 +20,7 @@ RUN mv /root/kubectl /usr/local/bin/kubectl
 RUN kubectl version --client
 
 # install aptible
-RUN apk add --no-cache openssh-keygen
+RUN apk add --no-cache openssh-client
 RUN gem install aptible-cli -v 0.19.2 --no-document
 
 ADD cicd /cicd
