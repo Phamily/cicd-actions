@@ -21,7 +21,7 @@ class AptibleModule
     pru = fetch(:registry_username)
     prp = fetch(:registry_password)
 
-    sh "aptible deploy --environment #{apt_env} --app #{apt_app}--docker-image #{iuri} --private-registry-username #{pru} --private-registry-password #{prp}"
+    sh "aptible deploy --environment #{apt_env} --app #{apt_app} --docker-image #{iuri} --private-registry-username #{pru} --private-registry-password #{prp}"
   end
 
 end
