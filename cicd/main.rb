@@ -5,6 +5,7 @@ require_relative 'lib/cypress'
 require_relative 'lib/kube'
 require_relative 'lib/rspec'
 require_relative 'lib/lambda'
+require_relative 'lib/aptible'
 require 'erb'
 require 'yaml'
 require 'base64'
@@ -15,7 +16,8 @@ MODULES = {
   cypress: CypressModule.new,
   kube: KubeModule.new,
   rspec: RspecModule.new,
-  lambda: LambdaModule.new
+  lambda: LambdaModule.new,
+  aptible: AptibleModule.new
 }
 OPTIONS = {}
 
@@ -99,6 +101,8 @@ def branch
   ref = fetch(:github_ref)
   if ref.include?("refs/heads")
     return ref.gsub("refs/heads/", "")
+  elsif ref.include?("refs/tags")
+    return ref.gsub("refs/tags/", "")
   else
     return nil
   end

@@ -3,8 +3,8 @@ LABEL "maintainer"="Alan Graham"
 
 RUN apk update && apk upgrade
 
-RUN apk add ruby 
-RUN apk add ruby-json
+#RUN apk add ruby 
+RUN apk add ruby-full
 RUN apk add py-pip 
 RUN apk add unzip
 RUN apk add curl
@@ -18,6 +18,9 @@ RUN curl -L https://storage.googleapis.com/kubernetes-release/release/v1.17.0/bi
 RUN chmod a+x /root/kubectl
 RUN mv /root/kubectl /usr/local/bin/kubectl
 RUN kubectl version --client
+
+# install aptible
+RUN gem install aptible-cli -v 0.19.2 --no-document
 
 ADD cicd /cicd
 ADD kube /kube

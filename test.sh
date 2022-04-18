@@ -149,6 +149,6 @@ kube_apply () {
 #push
 #pull
 #retag
-test_cypress
+#test_cypress
 #test_rspec
 #kube_apply

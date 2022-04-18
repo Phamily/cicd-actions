@@ -77,6 +77,18 @@ inputs:
   lambda_function_name:
     description: "Lambda function name"
     required: false
+  aptible_environment:
+    description: "Aptible environment name"
+    required: false
+  aptible_app:
+    description: "Aptible app name"
+    required: false
+  aptible_email:
+    description: "Aptible account email"
+    required: false
+  aptible_password:
+    description: "Aptible account password"
+    required: false
 outputs:
   deploy_url:
     description: "Deploy URL for this branch"
