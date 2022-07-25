@@ -89,6 +89,9 @@ inputs:
   aptible_password:
     description: "Aptible account password"
     required: false
+  deploy_url_env_var:
+    description: "Deploy url environment variable"
+    required: false
 outputs:
   deploy_url:
     description: "Deploy URL for this branch"

@@ -2,6 +2,7 @@ class KubeModule
 
   def prepare
     set :kube_cluster_name, ENV['INPUT_KUBE_CLUSTER_NAME']
+    set :deploy_url_env_var, ENV['INPUT_DEPLOY_URL_ENV_VAR']
   end
 
   def config
@@ -28,7 +29,7 @@ class KubeModule
     if denv.nil?
       puts "::set-output name=deploy_url::none"
     else
-      deploy_url = denv["kube"]["env"]["PHAMILY_HOST_URL"]
+      deploy_url = denv["kube"]["env"]["PHAMILY_HOST_URL"] || denv["kube"]["env"][fetch(:deploy_url_env_var)]
       deploy_url = "http://" + deploy_url if !deploy_url.start_with?("http")
       puts "::set-output name=deploy_url::#{deploy_url}"
     end
