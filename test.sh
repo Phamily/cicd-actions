@@ -13,6 +13,7 @@ sudo docker rm -f cicd-app || true
 #sudo docker run -e INPUT_TASKS="docker:build" -e INPUT_IMAGE_NAME=cicd-test -e INPUT_TESTS=run_test.sh -e INPUT_BUILD_ARTIFACT="true" -e GITHUB_REF=refs/heads/alan/cicd -v `pwd`/test_repo:/test_repo -w /test_repo cicd-actions:latest
 
 build() {
+  echo "Testing build..."
   #sudo docker build /home/alan/Projects/web/phamily-rails -t phamily-rails:latest
   sudo docker run \
     -e INPUT_TASKS="docker:build" \
@@ -145,6 +146,24 @@ kube_apply () {
     cicd-actions:latest
 }
 
+git_skip_if_tagged () {
+  echo "Testing git skip_if_tagged..."
+  #sudo docker run --env-file=.github/test.env phamily-rails rake db:reset
+  #sudo docker run -d -p 127.0.0.1:3000:3000 #{env_file_opt} #{fetch(:image_name)} rails s -p 3000"
+  sudo docker run \
+    -e INPUT_TASKS="git:skip_if_tagged" \
+    -e INPUT_GIT_TAGS=test \
+    -e INPUT_IMAGE_ENV_FILE=.github/test.env \
+    -e GITHUB_REF=refs/heads/alan/cicd-test \
+    -e GITHUB_SHA=597d47febfc0e85dddcdd01d11276b0862c1621a \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    -v /home/alan/Projects/web/phamily-rails:/app \
+    -w /app \
+    --rm \
+    cicd-actions:latest
+
+}
+
 #build
 #push
 #pull
@@ -152,3 +171,4 @@ kube_apply () {
 #test_cypress
 #test_rspec
 #kube_apply
+git_skip_if_tagged

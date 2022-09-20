@@ -5,7 +5,7 @@ class DockerModule
     set :registry_username, ENV['INPUT_REGISTRY_USERNAME']
     set :image_tar, ENV['INPUT_IMAGE_TAR']
     set :image_namespace, ENV['INPUT_IMAGE_NAMESPACE']
-    set :image_basename, fetch(:image_name).split("/")[-1]
+    set :image_basename, (fetch(:image_name) || "").split("/")[-1]
     set :build_artifact, ENV['INPUT_BUILD_ARTIFACT'] == "true"
     set :build_from_cache, ENV['INPUT_BUILD_FROM_CACHE'] == "true"
     set :copy_paths, ENV['INPUT_COPY_PATHS']

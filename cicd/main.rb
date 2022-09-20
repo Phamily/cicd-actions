@@ -6,6 +6,7 @@ require_relative 'lib/kube'
 require_relative 'lib/rspec'
 require_relative 'lib/lambda'
 require_relative 'lib/aptible'
+require_relative 'lib/git'
 require 'erb'
 require 'yaml'
 require 'base64'
@@ -17,7 +18,8 @@ MODULES = {
   kube: KubeModule.new,
   rspec: RspecModule.new,
   lambda: LambdaModule.new,
-  aptible: AptibleModule.new
+  aptible: AptibleModule.new,
+  git: GitModule.new
 }
 OPTIONS = {}
 
@@ -34,6 +36,7 @@ def prepare
   set :tasks, ENV['INPUT_TASKS'].split(",")
   set :image_name, ENV['INPUT_IMAGE_NAME']
   set :image_namespace, ENV['INPUT_IMAGE_NAMESPACE']
+  set :image_tag, ENV['INPUT_IMAGE_TAG']
   set :image_tag_style, ENV['INPUT_IMAGE_TAG_STYLE'] || 'branch'
   set :use_temporary_remote_image, ENV['INPUT_USE_TEMPORARY_REMOTE_IMAGE'] != "false"
   set :image_env_file, ENV['INPUT_IMAGE_ENV_FILE']
@@ -115,7 +118,8 @@ def sanitized_branch
 end
 
 def image_tag
-  ret = sanitized_branch
+  ret = fetch(:image_tag)
+  ret ||= sanitized_branch
   if fetch(:image_tag_style) == 'sha'
     ret = fetch(:github_sha)[0..6]
   end

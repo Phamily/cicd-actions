@@ -1,22 +1,18 @@
-FROM debian:11-slim
+## NOTE: When needing to upgrade to newer Alpine linux for packages, just
+# upggrade docker image version
+#
+FROM docker:19.03.2
 LABEL "maintainer"="Alan Graham"
 
-RUN apt-get update -y
+RUN apk update && apk upgrade && echo "Packages as of 2022-09-20"
 
-RUN apt-get install curl -qy
-
-# install docker
-RUN curl -L https://download.docker.com/linux/debian/dists/bullseye/pool/stable/amd64/docker-ce-cli_20.10.10~3-0~debian-bullseye_amd64.deb > /root/docker-cli.deb
-RUN dpkg -i /root/docker-cli.deb
-#RUN docker ps
-#RUN apt-get install docker-ce docker-ce-cli containerd.io -y
-
-# install ruby
-RUN apt-get install ruby -qy
-RUN apt-get install git -qy
+RUN apk add ruby-full
+RUN apk add py-pip 
+RUN apk add unzip
+RUN apk add curl
+RUN apk add git
 
 # install aws-cli
-RUN apt-get install python3-pip -qy
 RUN pip install awscli
 RUN aws --version
 
@@ -27,11 +23,14 @@ RUN mv /root/kubectl /usr/local/bin/kubectl
 RUN kubectl version --client
 
 # install aptible
+RUN apk add --no-cache dpkg
+RUN apk add --no-cache openssh-client
 RUN curl -L https://omnibus-aptible-toolbelt.s3.amazonaws.com/aptible/omnibus-aptible-toolbelt/master/378/pkg/aptible-toolbelt_0.19.4%2B20220909185211~debian.9.13-1_amd64.deb > /root/aptible.deb
+RUN dpkg --add-architecture amd64
 RUN dpkg -i /root/aptible.deb
 RUN aptible version
+#RUN gem install aptible-cli -v 0.19.4 --no-document
 
-# add ruby files
 ADD cicd /cicd
 ADD kube /kube
 RUN mkdir -p /kube/build

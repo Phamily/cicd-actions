@@ -14,6 +14,9 @@ inputs:
   image_namespace:
     description: "The namespace of the image you would like to push"
     required: false
+  image_tag:
+    description: "The image tag to use (defaults to branch)"
+    required: false
   image_tag_style:
     description: "The style of the image tag [branch | sha]"
     required: false
@@ -92,9 +95,14 @@ inputs:
   deploy_url_env_var:
     description: "Deploy url environment variable"
     required: false
+  git_tags:
+    description: "Git tags to reference"
+    required: false
 outputs:
   deploy_url:
     description: "Deploy URL for this branch"
+  skip:
+    description: "Indicates should skip next step"
 runs:
   using: 'docker'
   image: 'Dockerfile'
