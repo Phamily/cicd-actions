@@ -40,7 +40,7 @@ class GitModule
     end
 
 
-    sh("git push origin --tags")
+    sh("git push origin -f --tags")
   end
 
 end
