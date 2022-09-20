@@ -49,6 +49,7 @@ def prepare
   set :github_ref, ENV['GITHUB_REF']
   set :github_sha, ENV['GITHUB_SHA']
   set :github_event_name, ENV['GITHUB_EVENT_NAME']
+  set :github_actor, ENV['GITHUB_ACTOR']
 
   # cicd config
   if File.exists?(".github/cicd.yml")
@@ -66,6 +67,7 @@ def prepare
   end
   puts "Detected Github event: #{fetch(:github_event_name)}"
   puts "Detected branch: #{branch}@#{fetch(:github_sha)}"
+  puts "Detected actor: #{fetch(:github_actor)}"
   puts "Current working directory: #{Dir.pwd}"
 end
 

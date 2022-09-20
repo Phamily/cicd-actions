@@ -35,6 +35,10 @@ class GitModule
       sh("git tag -fa #{dtag} #{sha} -m \"Release #{dtag}\"")
     end
 
+
+    actor = fetch(:github_actor)
+    sh("git config user.name #{actor}")
+    sh("git config user.email #{actor}@users.noreply.github.com")
     sh("git push origin --tags")
   end
 
