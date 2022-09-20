@@ -2,7 +2,7 @@ class GitModule
 
   def prepare
     set :git_tags, (ENV['INPUT_GIT_TAGS'] || "").split(",")
-    set :git_tag, ENV['INPUT_GIT_TAGS']
+    set :git_tag, ENV['INPUT_GIT_TAG']
     set :git_tag_suffix, ENV['INPUT_GIT_TAG_SUFFIX']
   end
 
