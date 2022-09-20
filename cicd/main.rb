@@ -65,7 +65,7 @@ def prepare
     mod.prepare
   end
   puts "Detected Github event: #{fetch(:github_event_name)}"
-  puts "Detected branch: #{branch}"
+  puts "Detected branch: #{branch}@#{fetch(:github_sha)}"
   puts "Current working directory: #{Dir.pwd}"
 end
 
