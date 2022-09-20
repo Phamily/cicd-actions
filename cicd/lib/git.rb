@@ -27,6 +27,10 @@ class GitModule
     sfx = fetch(:git_tag_suffix)
     raise "Tag not specified" if !present?(tag)
 
+    actor = fetch(:github_actor)
+    sh("git config --global user.name #{actor}")
+    sh("git config --global user.email #{actor}@users.noreply.github.com")
+
     sh("git tag -fa #{tag} #{sha} -m \"Release #{tag}\"")
 
     if sfx == "date"
@@ -36,9 +40,6 @@ class GitModule
     end
 
 
-    actor = fetch(:github_actor)
-    sh("git config user.name #{actor}")
-    sh("git config user.email #{actor}@users.noreply.github.com")
     sh("git push origin --tags")
   end
 
