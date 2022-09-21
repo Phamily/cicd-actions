@@ -32,15 +32,16 @@ class GitModule
     sh("git config --global user.email #{actor}@users.noreply.github.com")
 
     sh("git tag -fa #{tag} #{sha} -m \"Release #{tag}\"")
+    sh("git push origin -f #{tag}")
 
     if sfx == "date"
       dnow = Time.now.strftime("%Y%m%d")
       dtag = "#{tag}-#{dnow}"
       sh("git tag -fa #{dtag} #{sha} -m \"Release #{dtag}\"")
+      sh("git push origin -f #{dtag}")
     end
 
 
-    sh("git push origin -f --tags")
   end
 
 end
