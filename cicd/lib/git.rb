@@ -11,9 +11,9 @@ class GitModule
     sha = fetch(:github_sha)
     sha_tags = `git tag --points-at #{sha}`.split("\n")
     puts "Current sha tags: #{sha_tags.join(", ")}"
-    git_tags = fetch(:git_tags)
+    check_tag = fetch(:git_tag)
     should_skip = sha_tags.any?{|tag|
-      git_tags.include?(tag)
+      tag.include?(check_tag)}
     }
     if should_skip
       puts "Tag found, notifying to skip."
@@ -31,14 +31,15 @@ class GitModule
     sh("git config --global user.name #{actor}")
     sh("git config --global user.email #{actor}@users.noreply.github.com")
 
-    sh("git tag -fa #{tag} #{sha} -m \"Release #{tag}\"")
-    sh("git push origin -f #{tag}")
+    # Avoid forcing tag for now
+    #sh("git tag -fa #{tag} #{sha} -m \"Release #{tag}\"")
+    #sh("git push origin -f #{tag}")
 
     if sfx == "date"
-      dnow = Time.now.strftime("%Y%m%d")
+      dnow = Time.now.strftime("%Y%m%d-%H%M")
       dtag = "#{tag}-#{dnow}"
-      sh("git tag -fa #{dtag} #{sha} -m \"Release #{dtag}\"")
-      sh("git push origin -f #{dtag}")
+      sh("git tag -a #{dtag} #{sha} -m \"Release #{dtag}\"")
+      sh("git push origin #{dtag}")
     end
 
 
