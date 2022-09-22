@@ -13,7 +13,7 @@ class GitModule
     puts "Current sha tags: #{sha_tags.join(", ")}"
     check_tag = fetch(:git_tag)
     should_skip = sha_tags.any?{|tag|
-      tag.include?(check_tag)}
+      tag.include?(check_tag)
     }
     if should_skip
       puts "Tag found, notifying to skip."
