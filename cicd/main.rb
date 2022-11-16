@@ -47,6 +47,7 @@ def prepare
 
   # github env vars
   set :github_ref, ENV['GITHUB_REF']
+  set :github_ref_name, ENV['GITHUB_REF_NAME']
   set :github_sha, ENV['GITHUB_SHA']
   set :github_event_name, ENV['GITHUB_EVENT_NAME']
   set :github_actor, ENV['GITHUB_ACTOR']
@@ -121,7 +122,7 @@ end
 
 def image_tag
   ret = fetch(:image_tag)
-  ret ||= sanitized_branch
+  ret = sanitized_branch if !present?(ret)
   if fetch(:image_tag_style) == 'sha'
     ret = fetch(:github_sha)[0..6]
   end
