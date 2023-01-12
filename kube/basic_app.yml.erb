@@ -64,7 +64,7 @@ metadata:
     traefik.ingress.kubernetes.io/router.entrypoints: websecure
 spec:
   rules:
-  - host: <%= var(:env)[var(:routing)[:host_env_var]] %>
+  - host: <%= var(:env)[var(:deploy)[:host_env_var]] %>
     http:
       paths:
       - path: /
