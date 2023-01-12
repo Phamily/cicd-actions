@@ -13,6 +13,7 @@ require 'yaml'
 require 'base64'
 require 'json'
 require 'uri'
+require 'tempfile'
 
 MODULES = {
   aws: AwsModule.new,
