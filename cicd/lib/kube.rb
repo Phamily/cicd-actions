@@ -21,8 +21,8 @@ class KubeModule
       if !branch.nil? && e["branch"] == branch
         build_vars(e)
         create_namespace(e)
-        apply_environment(e)
         update_dns(e)
+        apply_environment(e)
       end
     end
   end
