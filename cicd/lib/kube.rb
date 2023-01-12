@@ -33,7 +33,10 @@ class KubeModule
       puts "::set-output name=deploy_url::none"
     else
       deploy_url = denv["kube"]["env"]["PHAMILY_HOST_URL"] || denv["kube"]["env"][fetch(:deploy_url_env_var)]
-      deploy_url = "http://" + deploy_url if !deploy_url.start_with?("http")
+      if !deploy_url.start_with?("http")
+        schema = denv["kube"]["routing_mode"] == 'auto' ? "https" : "http"
+        deploy_url = "#{schema}://#{deploy_url}"
+      end
       puts "::set-output name=deploy_url::#{deploy_url}"
     end
   end
@@ -107,9 +110,8 @@ class KubeModule
     return if e["kube"]["routing_mode"] != 'auto'
     # determine traefik load balancer IP
     lb_ip = get_traefik_load_balancer_ip
-    var_name = (e["deploy"] || {})["url_env_var"]
-    uri = URI.parse(e["kube"]["env"][var_name])
-    host = uri.host
+    var_name = (e["deploy"] || {})["host_env_var"]
+    host = e["kube"]["env"][var_name]
     MODULES[:aws].update_dns_record({host: host, type: "CNAME", value: lb_ip})
   end
 
