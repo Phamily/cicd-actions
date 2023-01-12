@@ -27,12 +27,12 @@ class AwsModule
           {
               "Action": "UPSERT",
               "ResourceRecordSet": {
-                  "Name": #{host},
-                  "Type": #{type},
+                  "Name": "#{host}",
+                  "Type": "#{type}",
                   "TTL": 300,
                   "ResourceRecords": [
                       {
-                          "Value": #{value}
+                          "Value": "#{value}"
                       }
                   ]
               }
