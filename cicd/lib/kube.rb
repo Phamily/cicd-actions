@@ -110,7 +110,7 @@ class KubeModule
     return if e["kube"]["routing_mode"] != 'auto'
     # determine traefik load balancer IP
     lb_ip = get_traefik_load_balancer_ip
-    var_name = (branch_settings["deploy"] || {})["host_env_var"]
+    var_name = e["kube"]["env"]["KUBE_DEPLOY_HOST_ENV_VAR"]
     host = e["kube"]["env"][var_name]
     MODULES[:aws].update_dns_record({host: host, type: "CNAME", value: lb_ip})
   end
