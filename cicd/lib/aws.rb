@@ -18,8 +18,8 @@ class AwsModule
 
   def update_dns_record(opts={})
     host = opts[:host]
-    rtype = opts[:type]
-    rvalue = opts[:value]
+    type = opts[:type]
+    value = opts[:value]
     change = <<~JSON
     {
       "Comment": "Update DNS record for sub domain",
@@ -32,7 +32,7 @@ class AwsModule
                   "TTL": 300,
                   "ResourceRecords": [
                       {
-                          "Value": #{rvalue}
+                          "Value": #{value}
                       }
                   ]
               }
