@@ -17,8 +17,10 @@ spec:
       - name: app
         image: <%= var(:app_image_url) %>
         imagePullPolicy: Always
-        stdin: true
-        tty: true
+        <% if var(:command) %>
+        command: <%= var(:command) %>
+        args: <%= var(:args) %>
+        <% end %>
         env:
         - name: KUBE_APPLY_AT
           value: "<%= Time.now.to_i %>"
@@ -34,18 +36,41 @@ spec:
     matchLabels:
       name: <%= var(:name) %>
 
-<% if var(:has_endpoint) %>
+<% if var(:has_service) %>
 ---
 kind: Service
 apiVersion: v1
 metadata:
   name: <%= var(:name) %>
 spec:
+  <% if var(:routing_mode) != 'auto' %>
   type: LoadBalancer
+  <% end %>
   selector:
     name: <%= var(:name) %>
   ports:
   - port: 80
     protocol: TCP
-    targetPort: 3000
+    targetPort: <%= var(:target_port) %>
+<% end %>
+
+<% if var(:routing_mode) == 'auto' %>
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: <%= var(:name) %>
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: <%= var(:name) %>
+            port:
+              number: 80
 <% end %>

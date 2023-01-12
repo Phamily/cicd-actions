@@ -19,7 +19,10 @@ class KubeModule
     cicd = fetch(:cicd_config)
     cicd["environments"].each do |e|
       if !branch.nil? && e["branch"] == branch
+        build_vars(e)
+        create_namespace(e)
         apply_environment(e)
+        update_dns(e)
       end
     end
   end
@@ -45,9 +48,13 @@ class KubeModule
     set :app_image_url, "#{rurl}/#{imnms}/#{im}:#{sanitized_branch}"
   end
 
+  def create_namespace(e)
+    ns = e["kube"]["namespace"]
+    sh "kubectl create namespace #{ns} --dry-run -o yaml | kubectl apply -f -"
+  end
+
   def apply_environment(e)
     puts "Applying to the #{e["name"]} environment."
-    build_vars(e)
     # iterate needed manifests
     svc_comps = []
     init_comps = []
@@ -94,6 +101,16 @@ class KubeModule
     jobs.select{|j| j['run_stage'] == 'post_app'}.each do |c|
       run_resource('job', c)
     end
+  end
+
+  def update_dns(e)
+    return if e["kube"]["routing_mode"] != 'auto'
+    # determine traefik load balancer IP
+    lb_ip = get_traefik_load_balancer_ip
+    var_name = (e["deploy"] || {})["url_env_var"]
+    uri = URI.parse(e["kube"]["env"][var_name])
+    host = uri.host
+    MODULES[:aws].update_dns_record({host: host, type: "CNAME", value: lb_ip})
   end
 
   def run_resource(type, c)
@@ -144,6 +161,11 @@ class KubeModule
         sleep 10
       end
     end
+  end
+
+  def get_traefik_load_balancer_ip
+    svc = JSON.parse(`kubectl -n traefik get service traefik -o json`)
+    svc["status"]["loadBalancer"]["ingress"][0]["hostname"]
   end
 
   def kubecmd(cmd)

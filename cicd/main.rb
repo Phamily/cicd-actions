@@ -7,10 +7,12 @@ require_relative 'lib/rspec'
 require_relative 'lib/lambda'
 require_relative 'lib/aptible'
 require_relative 'lib/git'
+require_relative 'lib/aws'
 require 'erb'
 require 'yaml'
 require 'base64'
 require 'json'
+require 'uri'
 
 MODULES = {
   docker: DockerModule.new,
@@ -19,7 +21,8 @@ MODULES = {
   rspec: RspecModule.new,
   lambda: LambdaModule.new,
   aptible: AptibleModule.new,
-  git: GitModule.new
+  git: GitModule.new,
+  aws: AwsModule.new
 }
 OPTIONS = {}
 
@@ -224,6 +227,13 @@ def write_template_file(inpath, outpath, opts={})
   context = opts[:context]
   b = KubeFileBinding.new(context)
   File.write(outpath, b.erb_result(inpath))
+end
+
+def write_tmp_file(str, ext)
+  Tempfile.open(["cicd-actions", ext]) do |f|
+    f.write(str)
+    f.path
+  end
 end
 
 def present?(var)
