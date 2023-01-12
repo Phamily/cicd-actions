@@ -1,5 +1,21 @@
 class AwsModule
 
+  def prepare
+    set :aws_access_key, ENV['INPUT_AWS_ACCESS_KEY']
+    set :aws_secret_access_key, ENV['INPUT_AWS_SECRET_ACCESS_KEY']
+    set :aws_region, ENV['INPUT_AWS_REGION']
+
+    aws_ak = fetch(:aws_access_key)
+    aws_sak = fetch(:aws_secret_access_key)
+    aws_reg = fetch(:aws_region)
+    return if !present?(aws_ak)
+    puts "Configuring AWS Credentials."
+    # write aws config
+    sh "mkdir -p #{ENV['HOME']}/.aws"
+    File.write "#{ENV['HOME']}/.aws/credentials", "[default]\naws_access_key_id = #{aws_ak}\naws_secret_access_key = #{aws_sak}\n"
+    File.write "#{ENV['HOME']}/.aws/config", "[default]\nregion = #{aws_reg}\noutput = json\n"
+  end
+
   def update_dns_record(opts={})
     host = opts[:host]
     rtype = opts[:type]
