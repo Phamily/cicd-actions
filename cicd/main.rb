@@ -7,19 +7,23 @@ require_relative 'lib/rspec'
 require_relative 'lib/lambda'
 require_relative 'lib/aptible'
 require_relative 'lib/git'
+require_relative 'lib/aws'
 require 'erb'
 require 'yaml'
 require 'base64'
 require 'json'
+require 'uri'
+require 'tempfile'
 
 MODULES = {
+  aws: AwsModule.new,
   docker: DockerModule.new,
   cypress: CypressModule.new,
   kube: KubeModule.new,
   rspec: RspecModule.new,
   lambda: LambdaModule.new,
   aptible: AptibleModule.new,
-  git: GitModule.new
+  git: GitModule.new,
 }
 OPTIONS = {}
 
@@ -40,9 +44,6 @@ def prepare
   set :image_tag_style, ENV['INPUT_IMAGE_TAG_STYLE'] || 'branch'
   set :use_temporary_remote_image, ENV['INPUT_USE_TEMPORARY_REMOTE_IMAGE'] != "false"
   set :image_env_file, ENV['INPUT_IMAGE_ENV_FILE']
-  set :aws_access_key, ENV['INPUT_AWS_ACCESS_KEY']
-  set :aws_secret_access_key, ENV['INPUT_AWS_SECRET_ACCESS_KEY']
-  set :aws_region, ENV['INPUT_AWS_REGION']
   set :keep_dependencies, ENV['INPUT_KEEP_DEPENDENCIES'] == "true"
 
   # github env vars
@@ -59,13 +60,11 @@ def prepare
     raise "Please add .github/cicd.yml"
   end
 
-  # set aws config
-  configure_aws
-
   # modules
   MODULES.each do |key, mod|
     mod.prepare
   end
+
   puts "Detected Github event: #{fetch(:github_event_name)}"
   puts "Detected branch: #{branch}@#{fetch(:github_sha)}"
   puts "Detected actor: #{fetch(:github_actor)}"
@@ -226,20 +225,15 @@ def write_template_file(inpath, outpath, opts={})
   File.write(outpath, b.erb_result(inpath))
 end
 
-def present?(var)
-  var != "" && !var.nil?
+def write_tmp_file(str, ext)
+  Tempfile.open(["cicd-actions", ext]) do |f|
+    f.write(str)
+    f.path
+  end
 end
 
-def configure_aws
-  aws_ak = fetch(:aws_access_key)
-  aws_sak = fetch(:aws_secret_access_key)
-  aws_reg = fetch(:aws_region)
-  return if !present?(aws_ak)
-  puts "Configuring AWS Credentials."
-  # write aws config
-  sh "mkdir -p #{ENV['HOME']}/.aws"
-  File.write "#{ENV['HOME']}/.aws/credentials", "[default]\naws_access_key_id = #{aws_ak}\naws_secret_access_key = #{aws_sak}\n"
-  File.write "#{ENV['HOME']}/.aws/config", "[default]\nregion = #{aws_reg}\noutput = json\n"
+def present?(var)
+  var != "" && !var.nil?
 end
 
 def merge_with_options(*hashes)

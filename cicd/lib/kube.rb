@@ -19,6 +19,9 @@ class KubeModule
     cicd = fetch(:cicd_config)
     cicd["environments"].each do |e|
       if !branch.nil? && e["branch"] == branch
+        build_vars(e)
+        create_namespace(e)
+        update_dns(e)
         apply_environment(e)
       end
     end
@@ -30,7 +33,10 @@ class KubeModule
       puts "::set-output name=deploy_url::none"
     else
       deploy_url = denv["kube"]["env"]["PHAMILY_HOST_URL"] || denv["kube"]["env"][fetch(:deploy_url_env_var)]
-      deploy_url = "http://" + deploy_url if !deploy_url.start_with?("http")
+      if !deploy_url.start_with?("http")
+        schema = denv["kube"]["routing_mode"] == 'auto' ? "https" : "http"
+        deploy_url = "#{schema}://#{deploy_url}"
+      end
       puts "::set-output name=deploy_url::#{deploy_url}"
     end
   end
@@ -45,9 +51,13 @@ class KubeModule
     set :app_image_url, "#{rurl}/#{imnms}/#{im}:#{sanitized_branch}"
   end
 
+  def create_namespace(e)
+    ns = e["kube"]["namespace"]
+    sh "kubectl create namespace #{ns} --dry-run -o yaml | kubectl apply -f -"
+  end
+
   def apply_environment(e)
     puts "Applying to the #{e["name"]} environment."
-    build_vars(e)
     # iterate needed manifests
     svc_comps = []
     init_comps = []
@@ -94,6 +104,15 @@ class KubeModule
     jobs.select{|j| j['run_stage'] == 'post_app'}.each do |c|
       run_resource('job', c)
     end
+  end
+
+  def update_dns(e)
+    return if e["kube"]["routing_mode"] != 'auto'
+    # determine traefik load balancer IP
+    lb_ip = get_traefik_load_balancer_ip
+    var_name = e["kube"]["env"]["KUBE_DEPLOY_HOST_ENV_VAR"]
+    host = e["kube"]["env"][var_name]
+    MODULES[:aws].update_dns_record({host: host, type: "CNAME", value: lb_ip})
   end
 
   def run_resource(type, c)
@@ -144,6 +163,11 @@ class KubeModule
         sleep 10
       end
     end
+  end
+
+  def get_traefik_load_balancer_ip
+    svc = JSON.parse(`kubectl -n traefik get service traefik -o json`)
+    svc["status"]["loadBalancer"]["ingress"][0]["hostname"]
   end
 
   def kubecmd(cmd)
