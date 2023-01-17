@@ -34,7 +34,7 @@ class KubeModule
     else
       deploy_url = denv["kube"]["env"]["PHAMILY_HOST_URL"] || denv["kube"]["env"][fetch(:deploy_url_env_var)]
       if !deploy_url.start_with?("http")
-        schema = denv["kube"]["routing_mode"] == 'auto' ? "https" : "http"
+        schema = denv["kube"]["env"]["PHAMILY_URL_SCHEMA"] || "http"
         deploy_url = "#{schema}://#{deploy_url}"
       end
       puts "::set-output name=deploy_url::#{deploy_url}"
