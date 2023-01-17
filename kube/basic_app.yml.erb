@@ -61,7 +61,7 @@ kind: Ingress
 metadata:
   name: <%= var(:name) %>
   annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    traefik.ingress.kubernetes.io/router.entrypoints: web
 spec:
   rules:
   - host: <%= var(:env)[var(:env)['KUBE_DEPLOY_HOST_ENV_VAR']] %>
