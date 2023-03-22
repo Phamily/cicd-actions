@@ -1,5 +1,7 @@
 # CICD Actions
 
+This serves as a repository of scripts for CICD actions specifically for Phamily Rails. Eventually the core should be moved out into a library to be used by this repo. For example, this repo should always define `start_dependencies` and other scripts here so that they don't have to be defined in the code repo.
+
 ## Installation
 
 ### awscli
