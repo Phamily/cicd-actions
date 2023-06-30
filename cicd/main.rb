@@ -79,11 +79,11 @@ def start_dependencies(opts={})
 
   # prepare test database
   puts "Starting postgres..."
-  sh "docker run --name=cicd-postgres --network=cicd --rm -e POSTGRES_PASSWORD=postgres -d postgres:14"
+  sh "docker run --name=cicd-postgres --network=cicd --rm -e POSTGRES_PASSWORD=postgres -d postgres:14.1"
   puts "Postgres started"
 
   puts "Starting redis..."
-  sh "docker run --name=cicd-redis --network=cicd --rm -d redis"
+  sh "docker run --name=cicd-redis --network=cicd --rm -d redis:5.0"
   puts "Redis started"
 
   puts "Preparing database..."
