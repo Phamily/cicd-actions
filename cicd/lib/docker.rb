@@ -59,7 +59,7 @@ class DockerModule
     end
     sh build_cmd
 
-    if fetch(:image_tar).present?
+    if present?(fetch(:image_tar))
       sh "docker image save --output #{fetch(:image_tar)} #{flin}"
     end
   end
