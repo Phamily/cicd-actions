@@ -14,7 +14,7 @@ class PlaywrightModule
     pcmd = fetch(:playwright_command)
     purl = fetch(:playwright_base_url)
     base_url = purl || "http://cicd-app:3000"
-    cmd = "docker run --network=cicd --rm --ipc=host --env PLAYWRIGHT_TEST_BASE_URL=#{base_url} playwright-runner #{pcmd}"
+    cmd = "docker run --network=cicd --rm --ipc=host --env PLAYWRIGHT_TEST_BASE_URL=#{base_url} --env CI=true playwright-runner #{pcmd}"
     sh cmd
   end
 
