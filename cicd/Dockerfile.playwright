@@ -1,0 +1,13 @@
+FROM mcr.microsoft.com/playwright:v1.31.2-jammy
+
+# add dependencies
+RUN mkdir /frontend
+WORKDIR /frontend
+
+ADD frontend/package.json frontend/yarn.lock /frontend/
+RUN yarn install
+
+# add playwright stuff
+ADD frontend/playwright.config.js /frontend
+ADD frontend/playwright /frontend/playwright
+ADD frontend/spec /frontend/spec

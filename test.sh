@@ -110,6 +110,22 @@ test_cypress () {
     cicd-actions:latest
 }
 
+test_playwright () {
+  echo "Testing playwright..."
+  #sudo docker run --env-file=.github/test.env phamily-rails rake db:reset
+  #sudo docker run -d -p 127.0.0.1:3000:3000 #{env_file_opt} #{fetch(:image_name)} rails s -p 3000"
+  sudo docker run \
+    -e INPUT_TASKS="playwright:run" \
+    -e GITHUB_REF=refs/heads/alan/cicd-test \
+    -e GITHUB_EVENT_NAME=push \
+    -e INPUT_PLAYWRIGHT_COMMAND="yarn playwright:core" \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    -v /home/alan/Projects/web/phamily-rails:/app \
+    -w /app \
+    --rm \
+    cicd-actions:latest
+}
+
 test_rspec () {
   echo "Testing rspec..."
   #sudo docker run --env-file=.github/test.env phamily-rails rake db:reset
@@ -125,6 +141,20 @@ test_rspec () {
     --rm \
     cicd-actions:latest
 
+}
+
+test_rails() {
+  echo "Testing rails..."
+  sudo docker run \
+    -e INPUT_TASKS="rails:run" \
+    -e INPUT_IMAGE_NAME=phamily-rails \
+    -e INPUT_IMAGE_ENV_FILE=.github/test.env \
+    -e GITHUB_REF=refs/heads/alan/cicd-test \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    -v /home/alan/Projects/web/phamily-rails:/app \
+    -w /app \
+    --rm \
+    cicd-actions:latest
 }
 
 kube_apply () {
@@ -169,6 +199,8 @@ git_skip_if_tagged () {
 #pull
 #retag
 #test_cypress
+#test_playwright
+test_rails
 #test_rspec
 #kube_apply
-git_skip_if_tagged
+#git_skip_if_tagged

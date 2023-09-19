@@ -8,6 +8,8 @@ require_relative 'lib/lambda'
 require_relative 'lib/aptible'
 require_relative 'lib/git'
 require_relative 'lib/aws'
+require_relative 'lib/rails'
+require_relative 'lib/playwright'
 require 'erb'
 require 'yaml'
 require 'base64'
@@ -24,6 +26,8 @@ MODULES = {
   lambda: LambdaModule.new,
   aptible: AptibleModule.new,
   git: GitModule.new,
+  rails: RailsModule.new,
+  playwright: PlaywrightModule.new,
 }
 OPTIONS = {}
 
@@ -90,7 +94,7 @@ def start_dependencies(opts={})
   run_in_image "bundle exec rake db:create"
   run_in_image "bundle exec rake db:schema:load"
   if opts[:seed]
-    run_in_image "bundle exec rake db:seed"
+    run_in_image "PHAMILY_SEED_MINIMAL=true bundle exec rake db:seed"
   end
   puts "Test database prepared."
 end
