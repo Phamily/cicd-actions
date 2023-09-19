@@ -59,8 +59,8 @@ class DockerModule
     end
     sh build_cmd
 
-    if fetch(:build_artifact)
-      sh "docker image save --output image.tar #{flin}"
+    if fetch(:image_tar)
+      sh "docker image save --output #{fetch(:image_tar)} #{flin}"
     end
   end
 
