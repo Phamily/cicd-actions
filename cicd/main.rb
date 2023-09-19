@@ -94,7 +94,7 @@ def start_dependencies(opts={})
   run_in_image "bundle exec rake db:create"
   run_in_image "bundle exec rake db:schema:load"
   if opts[:seed]
-    run_in_image "PHAMILY_SEED_MINIMAL=true bundle exec rake db:seed"
+    run_in_image "bundle exec rake db:seed", "--env PHAMILY_SEED_MINIMAL=true"
   end
   puts "Test database prepared."
 end
