@@ -24,25 +24,33 @@ class GitModule
   def tag
     sha = fetch(:github_sha)
     tag = fetch(:git_tag)
-    sfx = fetch(:git_tag_suffix)
+    sfx = fetch(:uniq_sfx_method) 
+
     raise "Tag not specified" if !present?(tag)
 
     actor = fetch(:github_actor)
     sh("git config --global user.name #{actor}")
     sh("git config --global user.email #{actor}@users.noreply.github.com")
+    
+    # Always push the tag that you receive
+    sh("git tag -fa #{tag} #{sha} -m \"Release #{tag}\"")
+    sh("git push -f origin #{tag}")
 
-    # Avoid forcing tag for now
-    #sh("git tag -fa #{tag} #{sha} -m \"Release #{tag}\"")
-    #sh("git push origin -f #{tag}")
-
-    if sfx == "date"
-      dnow = Time.now.strftime("%Y%m%d-%H%M")
-      dtag = "#{tag}-#{dnow}"
-      sh("git tag -a #{dtag} #{sha} -m \"Release #{dtag}\"")
-      sh("git push origin #{dtag}")
+    # If sfx method is specified, tag & push a uniq copy
+    if sfx
+      uniq_tag = uniq_sfx(tag, sfx)
+      sh("git tag -fa #{uniq_tag} #{sha} -m \"Release #{uniq_tag}\"")
+      sh("git push -f origin #{uniq_tag}")
     end
+  end
 
-
+  def uniq_sfx(tag, type)
+    if type == "date"
+      dnow = Time.now.strftime("%Y%m%d-%H%M")
+      return "#{tag}-#{dnow}"
+    end
+    
+    raise "Tag uniq method not found"
   end
 
 end
