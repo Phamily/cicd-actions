@@ -42,6 +42,7 @@ end
 
 def prepare
   set :tasks, ENV['INPUT_TASKS'].split(",")
+  set :branch, ENV['INPUT_BRANCH']
   set :image_name, ENV['INPUT_IMAGE_NAME']
   set :image_namespace, ENV['INPUT_IMAGE_NAMESPACE']
   set :image_tag, ENV['INPUT_IMAGE_TAG']
@@ -108,13 +109,13 @@ end
 # helper methods
 
 def branch
-  ref = fetch(:github_ref)
+  ref = fetch(:branch) || fetch(:github_ref)
   if ref.include?("refs/heads")
     return ref.gsub("refs/heads/", "")
   elsif ref.include?("refs/tags")
     return ref.gsub("refs/tags/", "")
   else
-    return nil
+    return ref
   end
 end
 
