@@ -37,8 +37,7 @@ class GitModule
     remote = "origin"
 
     if git_pat
-      remote = "github_pat"
-      sh("git remote add #{remote} https://#{git_pat_username}:#{git_pat}@github.com/#{github_repository}")
+      sh("git remote set-url #{remote} https://#{git_pat_username}:#{git_pat}@github.com/#{github_repository}")
     end
     sh("git config --global user.name #{actor}")
     sh("git config --global user.email #{actor}@users.noreply.github.com")
