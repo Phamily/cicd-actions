@@ -35,7 +35,7 @@ class GitModule
     git_pat = fetch(:git_pat)
     git_pat_user_name = fetch(:git_pat_user_name)
     
-    sh("git remote set-url origin https://#{git_pat_user_name}:#{git_pat}@github.com/#{github_action_repository}")
+    sh("git remote set-url origin https://#{git_pat_user_name}:#{git_pat}@github.com/#{github_repository}")
     sh("git config --global user.name #{actor}")
     sh("git config --global user.email #{actor}@users.noreply.github.com")
     
