@@ -34,20 +34,24 @@ class GitModule
     actor = fetch(:github_actor)
     git_pat = fetch(:git_pat)
     git_pat_username = fetch(:git_pat_username)
-    
-    sh("git remote set-url origin https://#{git_pat_username}:#{git_pat}@github.com/#{github_repository}")
+    remote = "origin"
+
+    if git_pat
+      remote = "github_pat"
+      sh("git remote add #{remote} https://#{git_pat_username}:#{git_pat}@github.com/#{github_repository}")
+    end
     sh("git config --global user.name #{actor}")
     sh("git config --global user.email #{actor}@users.noreply.github.com")
     
     # Always push the tag that you receive
     sh("git tag -fa #{tag} #{sha} -m \"Release #{tag}\"")
-    sh("git push -f origin #{tag}")
+    sh("git push -f #{remote} #{tag}")
     
     # If sfx method is specified, tag & push a uniq copy
     if sfx
       uniq_tag = uniq_sfx(tag, sfx)
       sh("git tag -fa #{uniq_tag} #{sha} -m \"Release #{uniq_tag}\"")
-      sh("git push -f origin #{uniq_tag}")
+      sh("git push -f #{remote} #{uniq_tag}")
     end
   end
 
