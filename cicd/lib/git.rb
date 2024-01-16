@@ -30,7 +30,7 @@ class GitModule
   
     raise "Tag not specified" if !present?(tag)
     
-    github_action_repository = fetch(:github_action_repository)
+    github_repository = fetch(:github_repository)
     actor = fetch(:github_actor)
     git_pat = fetch(:git_pat)
     git_pat_user_name = fetch(:git_pat_user_name)
