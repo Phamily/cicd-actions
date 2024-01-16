@@ -4,6 +4,8 @@ class GitModule
     set :git_tags, (ENV['INPUT_GIT_TAGS'] || "").split(",")
     set :git_tag, ENV['INPUT_GIT_TAG']
     set :git_tag_suffix, ENV['INPUT_GIT_TAG_SUFFIX']
+    set :git_pat, ENV['INPUT_GIT_PAT']
+    set :git_pat_user, ENV['INPUT_GIT_PAT_USER']
   end
 
   def skip_if_tagged
@@ -25,17 +27,20 @@ class GitModule
     sha = fetch(:github_sha)
     tag = fetch(:git_tag)
     sfx = fetch(:uniq_sfx_method) 
-
+  
     raise "Tag not specified" if !present?(tag)
-
+    
+    github_action_repository = fetch(:github_action_repository)
     actor = fetch(:github_actor)
+    
+    sh("git remote set-url origin https://#{git_pat_user_name}:#{git_pat}@github.com/#{github_action_repository}")
     sh("git config --global user.name #{actor}")
     sh("git config --global user.email #{actor}@users.noreply.github.com")
     
     # Always push the tag that you receive
     sh("git tag -fa #{tag} #{sha} -m \"Release #{tag}\"")
     sh("git push -f origin #{tag}")
-
+    
     # If sfx method is specified, tag & push a uniq copy
     if sfx
       uniq_tag = uniq_sfx(tag, sfx)
