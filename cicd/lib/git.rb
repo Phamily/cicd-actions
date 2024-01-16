@@ -32,6 +32,7 @@ class GitModule
     
     github_action_repository = fetch(:github_action_repository)
     actor = fetch(:github_actor)
+    git_pat_user_name = fetch(:git_pat_user_name)
     
     sh("git remote set-url origin https://#{git_pat_user_name}:#{git_pat}@github.com/#{github_action_repository}")
     sh("git config --global user.name #{actor}")
