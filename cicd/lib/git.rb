@@ -4,8 +4,6 @@ class GitModule
     set :git_tags, (ENV['INPUT_GIT_TAGS'] || "").split(",")
     set :git_tag, ENV['INPUT_GIT_TAG']
     set :git_tag_suffix_method, ENV['INPUT_GIT_TAG_SUFFIX_METHOD']
-    set :git_pat, ENV['INPUT_GIT_PAT']
-    set :git_pat_username, ENV['INPUT_GIT_PAT_USERNAME']
   end
 
   def skip_if_tagged
@@ -32,15 +30,8 @@ class GitModule
     
     github_repository = fetch(:github_repository)
     actor = fetch(:github_actor)
-    git_pat = fetch(:git_pat)
-    git_pat_username = fetch(:git_pat_username)
     remote = "origin"
-
-    if git_pat
-      url = ""
-      puts git_pat
-      sh("git remote set-url #{remote} https://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@github.com/#{github_repository}.git")
-    end
+    
     sh("git config --global user.name #{actor}")
     sh("git config --global user.email #{actor}@users.noreply.github.com")
     
