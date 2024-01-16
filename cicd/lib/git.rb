@@ -3,9 +3,9 @@ class GitModule
   def prepare
     set :git_tags, (ENV['INPUT_GIT_TAGS'] || "").split(",")
     set :git_tag, ENV['INPUT_GIT_TAG']
-    set :git_tag_suffix, ENV['INPUT_GIT_TAG_SUFFIX']
+    set :git_tag_suffix_method, ENV['INPUT_GIT_TAG_SUFFIX_METHOD']
     set :git_pat, ENV['INPUT_GIT_PAT']
-    set :git_pat_user, ENV['INPUT_GIT_PAT_USER']
+    set :git_pat_username, ENV['INPUT_GIT_PAT_USERNAME']
   end
 
   def skip_if_tagged
@@ -26,16 +26,16 @@ class GitModule
   def tag
     sha = fetch(:github_sha)
     tag = fetch(:git_tag)
-    sfx = fetch(:uniq_sfx_method) 
+    sfx = fetch(:git_tag_suffix_method) 
   
     raise "Tag not specified" if !present?(tag)
     
     github_repository = fetch(:github_repository)
     actor = fetch(:github_actor)
     git_pat = fetch(:git_pat)
-    git_pat_user_name = fetch(:git_pat_user_name)
+    git_pat_username = fetch(:git_pat_username)
     
-    sh("git remote set-url origin https://#{git_pat_user_name}:#{git_pat}@github.com/#{github_repository}")
+    sh("git remote set-url origin https://#{git_pat_username}:#{git_pat}@github.com/#{github_repository}")
     sh("git config --global user.name #{actor}")
     sh("git config --global user.email #{actor}@users.noreply.github.com")
     
