@@ -56,6 +56,7 @@ def prepare
   set :github_sha, ENV['GITHUB_SHA']
   set :github_event_name, ENV['GITHUB_EVENT_NAME']
   set :github_actor, ENV['GITHUB_ACTOR']
+  set :github_action_repository, ENV['GITHUB_ACTION_REPOSITORY']
 
   # cicd config
   if File.exists?(".github/cicd.yml")
