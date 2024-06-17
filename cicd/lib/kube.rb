@@ -17,7 +17,6 @@ class KubeModule
   def apply
     # iterate environments to apply
     puts "Applying to requested environments."
-    cicd = fetch(:cicd_config)
     e = current_deploy_env
     if e.present?
       build_vars(e)
@@ -34,6 +33,7 @@ class KubeModule
   private
 
   def current_deploy_env
+    cicd = fetch(:cicd_config)
     deploy_env_name = fetch(:deploy_env_name)
     cicd["environments"][deploy_env_name]
   end
