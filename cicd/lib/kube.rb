@@ -18,7 +18,7 @@ class KubeModule
     # iterate environments to apply
     puts "Applying to requested environments."
     e = current_deploy_env
-    if e.present?
+    if !e.nil?
       build_vars(e)
       create_namespace(e)
       update_dns(e)
