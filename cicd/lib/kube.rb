@@ -2,6 +2,7 @@ class KubeModule
 
   def prepare
     set :kube_cluster_name, ENV['INPUT_KUBE_CLUSTER_NAME']
+    set :deploy_env_name, ENV['INPUT_DEPLOY_ENV_NAME']
     set :deploy_url_env_var, ENV['INPUT_DEPLOY_URL_ENV_VAR']
   end
 
@@ -12,36 +13,30 @@ class KubeModule
     sh "aws eks --region #{aws_reg} update-kubeconfig --name #{clust}"
     sh "kubectl get nodes"
   end
-
+  
   def apply
     # iterate environments to apply
     puts "Applying to requested environments."
     cicd = fetch(:cicd_config)
-    cicd["environments"].each do |e|
-      if !branch.nil? && e["branch"] == branch
-        build_vars(e)
-        create_namespace(e)
-        update_dns(e)
-        apply_environment(e)
-      end
+    e = current_deploy_env
+    if e.present?
+      build_vars(e)
+      create_namespace(e)
+      update_dns(e)
+      apply_environment(e)
     end
   end
 
   def output_deploy_url
-    denv = branch_environments.first
-    if denv.nil?
-      puts "::set-output name=deploy_url::none"
-    else
-      deploy_url = denv["kube"]["env"]["PHAMILY_HOST_URL"] || denv["kube"]["env"][fetch(:deploy_url_env_var)]
-      if !deploy_url.start_with?("http")
-        schema = denv["kube"]["env"]["PHAMILY_URL_SCHEMA"] || "http"
-        deploy_url = "#{schema}://#{deploy_url}"
-      end
-      puts "::set-output name=deploy_url::#{deploy_url}"
-    end
+    ''
   end
 
   private
+
+  def current_deploy_env
+    deploy_env_name = fetch(:deploy_env_name)
+    cicd["environments"][deploy_env_name]
+  end
 
   def build_vars(e)
     rurl = fetch(:registry_url, required: true)
