@@ -57,7 +57,7 @@ class AwsModule
   end
 
   def get_hosted_zone_for_host(host)
-    root = host.split(".")[1..-1].join(".")
+    root = host.split(".")[-2..-1].join(".")
     zones = get_hosted_zones
     zones.select {|z| z["Name"].include?(root)}.first
   end
