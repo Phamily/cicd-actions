@@ -194,6 +194,36 @@ git_skip_if_tagged () {
 
 }
 
+sync_to_s3 () {
+  echo "Testing sync_to_s3..."
+  sudo docker run \
+    -e INPUT_TASKS="aws:sync_to_s3" \
+    -e INPUT_AWS_ACCESS_KEY=$PHAMILY_CICD_AWS_ACCESS_KEY \
+    -e INPUT_AWS_SECRET_ACCESS_KEY=$PHAMILY_CICD_AWS_SECRET_ACCESS_KEY \
+    -e INPUT_AWS_REGION=us-east-2 \
+    -e GITHUB_REF=refs/heads/alan/cicd-test \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    -v /home/alan/Projects/web/core-web:/app \
+    -w /app \
+    --rm \
+    cicd-actions:latest
+}
+
+cp_to_s3 () {
+  echo "Testing cp_to_s3..."
+  sudo docker run \
+    -e INPUT_TASKS="aws:cp_to_s3" \
+    -e INPUT_AWS_ACCESS_KEY=$PHAMILY_CICD_AWS_ACCESS_KEY \
+    -e INPUT_AWS_SECRET_ACCESS_KEY=$PHAMILY_CICD_AWS_SECRET_ACCESS_KEY \
+    -e INPUT_AWS_REGION=us-east-2 \
+    -e GITHUB_REF=refs/heads/alan/cicd-test \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    -v /home/alan/Projects/web/core-web:/app \
+    -w /app \
+    --rm \
+    cicd-actions:latest
+}
+
 #build
 #push
 #pull
