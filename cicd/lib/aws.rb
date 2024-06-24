@@ -49,6 +49,18 @@ class AwsModule
     sh "aws route53 change-resource-record-sets --hosted-zone-id #{zone_id} --change-batch file://#{change_file_path}"
   end
 
+  def sync_to_s3
+    bucket_name = 'my-tmp-bucket'
+    cache_policy = 'public,max-age=60,stale-while-revalidate=2592000'
+    sh "aws s3 sync $INPUT_DIRECTORY s3://#{bucket_name} --no-progress --delete --cache-control #{cache_policy}"
+  end
+
+  def cp_to_s3
+    bucket_name = 'my-tmp-bucket'
+    cache_policy = 'public,max-age=31536000,immutable'
+    sh "aws s3 cp $INPUT_FILE s3://#{bucket_name} --no-progress --delete --cache-control #{cache_policy}"
+  end
+
   private
 
   def get_hosted_zones
