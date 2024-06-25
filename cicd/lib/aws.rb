@@ -4,6 +4,10 @@ class AwsModule
     set :aws_access_key, ENV['INPUT_AWS_ACCESS_KEY']
     set :aws_secret_access_key, ENV['INPUT_AWS_SECRET_ACCESS_KEY']
     set :aws_region, ENV['INPUT_AWS_REGION']
+    set :s3_bucket_name, ENV['INPUT_S3_BUCKET_NAME']
+    set :s3_cache_policy, ENV['INPUT_S3_CACHE_POLICY']
+    set :s3_file_name, ENV['INPUT_S3_FILE_NAME']
+    set :s3_dir_name, ENV['INPUT_S3_DIR_NAME']
 
     aws_ak = fetch(:aws_access_key)
     aws_sak = fetch(:aws_secret_access_key)
@@ -50,15 +54,17 @@ class AwsModule
   end
 
   def sync_to_s3
-    bucket_name = 'my-tmp-bucket'
-    cache_policy = 'public,max-age=60,stale-while-revalidate=2592000'
-    sh "aws s3 sync $INPUT_DIRECTORY s3://#{bucket_name} --no-progress --delete --cache-control #{cache_policy}"
+    dir_name = fetch :s3_dir_name
+    bucket_name = fetch :s3_bucket_name
+    cache_policy = fetch :s3_cache_policy
+    sh "aws s3 sync #{dir_name} s3://#{bucket_name} --no-progress --delete --cache-control #{cache_policy}"
   end
 
   def cp_to_s3
-    bucket_name = 'my-tmp-bucket'
-    cache_policy = 'public,max-age=31536000,immutable'
-    sh "aws s3 cp $INPUT_FILE s3://#{bucket_name} --no-progress --delete --cache-control #{cache_policy}"
+    file_name = fetch :s3_file_name
+    bucket_name = fetch :s3_bucket_name
+    cache_policy = fetch :s3_cache_policy
+    sh "aws s3 cp #{file_name} s3://#{bucket_name} --no-progress --delete --cache-control #{cache_policy}"
   end
 
   private
