@@ -24,4 +24,12 @@ class AptibleModule
     sh "aptible deploy --environment #{apt_env} --app #{apt_app} --docker-image #{iuri} --private-registry-username #{pru} --private-registry-password #{prp}"
   end
 
+  def restart
+    login
+    apt_env = fetch(:aptible_environment)
+    apt_app = fetch(:aptible_app)
+
+    sh "aptible restart --environment #{apt_env} --app #{apt_app}"
+  end
+
 end
