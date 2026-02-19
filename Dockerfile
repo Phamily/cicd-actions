@@ -4,10 +4,22 @@ LABEL "maintainer"="Alan Graham"
 RUN apt-get update -y
 
 RUN apt-get install curl -qy
+# Add docker 
+RUN apt-get update && apt-get install -y \
+    ca-certificates \
+    curl \
+    gnupg
+RUN install -m 0755 -d /etc/apt/keyrings && \
+    curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg && \
+    chmod a+r /etc/apt/keyrings/docker.gpg
 
-# install docker
-RUN curl -L https://download.docker.com/linux/debian/dists/bullseye/pool/stable/amd64/docker-ce-cli_20.10.10~3-0~debian-bullseye_amd64.deb > /root/docker-cli.deb
-RUN dpkg -i /root/docker-cli.deb
+RUN echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+  tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+# 4. Install the Docker CLI (docker-ce-cli)
+RUN apt-get update && apt-get install -y docker-ce-cli
 #RUN docker ps
 #RUN apt-get install docker-ce docker-ce-cli containerd.io -y
 
