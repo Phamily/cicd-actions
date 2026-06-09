@@ -39,7 +39,12 @@ RUN mv /root/kubectl /usr/local/bin/kubectl
 RUN kubectl version --client
 
 # install aptible
-RUN curl -L https://omnibus-aptible-toolbelt.s3.amazonaws.com/aptible/omnibus-aptible-toolbelt/master/378/pkg/aptible-toolbelt_0.19.4%2B20220909185211~debian.9.13-1_amd64.deb > /root/aptible.deb
+# Fetch the `latest` aptible-toolbelt (debian-9 build). The old 0.19.4 (2022)
+# CLI deployed images by writing the now-deprecated APTIBLE_DOCKER_IMAGE /
+# APTIBLE_PRIVATE_REGISTRY_USERNAME / _PASSWORD config vars, which Aptible
+# rejects ("User Error: Deprecated environment variable used"). The modern CLI
+# passes --docker-image via the deploy API instead.
+RUN curl -L https://omnibus-aptible-toolbelt.s3.amazonaws.com/aptible/omnibus-aptible-toolbelt/latest/aptible-toolbelt_latest_debian-9_amd64.deb > /root/aptible.deb
 RUN dpkg -i /root/aptible.deb
 RUN aptible version
 
