@@ -1,6 +1,16 @@
 FROM debian:11-slim
 LABEL "maintainer"="Alan Graham"
 
+# The live deb.debian.org/debian-security pool is currently missing some
+# binaries for the indexed gnupg2 2.2.27-2+deb11u3 build (gpgsm/gnupg 404 on
+# `apt-get install gnupg`), breaking this image's build. Pin to the immutable
+# snapshot.debian.org archive instead of the live (mutable) mirror.
+RUN cat > /etc/apt/sources.list <<'EOF'
+deb [check-valid-until=no] http://snapshot.debian.org/archive/debian/20260824T000000Z bullseye main
+deb [check-valid-until=no] http://snapshot.debian.org/archive/debian-security/20260824T000000Z bullseye-security main
+deb [check-valid-until=no] http://snapshot.debian.org/archive/debian/20260824T000000Z bullseye-updates main
+EOF
+
 RUN apt-get update -y
 
 RUN apt-get install curl -qy
